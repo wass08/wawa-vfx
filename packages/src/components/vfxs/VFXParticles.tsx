@@ -199,10 +199,14 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
   return (
     <>
       <instancedMesh
-        // @ts-ignore
-        args={[defaultGeometry, undefined, nbParticles]}
-        // @ts-ignore
-        ref={mesh}
+        args={[
+          (geometry ? undefined : defaultGeometry) as
+            | THREE.BufferGeometry
+            | undefined,
+          undefined,
+          nbParticles,
+        ]}
+        ref={mesh as React.RefObject<THREE.InstancedMesh>}
         onBeforeRender={onBeforeRender}
       >
         {geometry}
@@ -213,54 +217,47 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
             MESH_MODE: renderMode === "mesh",
           }}
           transparent
-          // @ts-ignore
           alphaMap={alphaMap}
           depthWrite={false}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceColor"}
-          // @ts-ignore
-          args={[attributeArrays.instanceColor]}
+          args={[attributeArrays.instanceColor, 3]}
           itemSize={3}
           count={nbParticles}
           usage={DynamicDrawUsage}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceColorEnd"}
-          // @ts-ignore
-          args={[attributeArrays.instanceColorEnd]}
+          args={[attributeArrays.instanceColorEnd, 3]}
           itemSize={3}
           count={nbParticles}
           usage={DynamicDrawUsage}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceDirection"}
-          // @ts-ignore
-          args={[attributeArrays.instanceDirection]}
+          args={[attributeArrays.instanceDirection, 3]}
           itemSize={3}
           count={nbParticles}
           usage={DynamicDrawUsage}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceLifetime"}
-          // @ts-ignore
-          args={[attributeArrays.instanceLifetime]}
+          args={[attributeArrays.instanceLifetime, 2]}
           itemSize={2}
           count={nbParticles}
           usage={DynamicDrawUsage}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceSpeed"}
-          // @ts-ignore
-          args={[attributeArrays.instanceSpeed]}
+          args={[attributeArrays.instanceSpeed, 1]}
           itemSize={1}
           count={nbParticles}
           usage={DynamicDrawUsage}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceRotationSpeed"}
-          // @ts-ignore
-          args={[attributeArrays.instanceRotationSpeed]}
+          args={[attributeArrays.instanceRotationSpeed, 3]}
           itemSize={3}
           count={nbParticles}
           usage={DynamicDrawUsage}
@@ -421,7 +418,9 @@ void main() {
 extend({ ParticlesMaterial });
 declare module "@react-three/fiber" {
   interface ThreeElements {
-    particlesMaterial: ThreeElements["shaderMaterial"];
+    particlesMaterial: ThreeElements["shaderMaterial"] & {
+      alphaMap?: THREE.Texture;
+    };
   }
 }
 

@@ -175,7 +175,6 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
     return (
       <>
         {settingsBuilder}
-        {/* @ts-ignore */}
         <object3D {...props} ref={ref} />
       </>
     );
