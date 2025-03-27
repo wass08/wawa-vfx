@@ -4,7 +4,13 @@ import dtsPlugin from "vite-plugin-dts";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), dtsPlugin()],
+  plugins: [
+    react(),
+    dtsPlugin({
+      insertTypesEntry: true,
+      rollupTypes: true,
+    }),
+  ],
   build: {
     lib: {
       entry: "src/index.ts",

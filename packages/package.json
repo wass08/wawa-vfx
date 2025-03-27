@@ -1,12 +1,13 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.0.2",
+  "version": "1.0.5",
   "license": "MIT",
+  "types": "dist/index.d.ts",
   "main": "dist/wawa-vfx.umd.js",
   "module": "dist/wawa-vfx.es.js",
-  "types": "./dist/index.d.ts",
   "exports": {
+    "types": "./dist/index.d.ts",
     "import": "./dist/wawa-vfx.es.js",
     "require": "./dist/wawa-vfx.umd.js"
   },
