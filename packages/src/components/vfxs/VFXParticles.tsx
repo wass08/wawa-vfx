@@ -1,6 +1,7 @@
 import { shaderMaterial } from "@react-three/drei";
 import { extend, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 import {
   AdditiveBlending,
   Color,
@@ -11,7 +12,7 @@ import {
   Quaternion,
   Vector3,
 } from "three";
-import { useVFX } from "./VFXStore";
+import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
 
 const tmpPosition = new Vector3();
 const tmpRotationEuler = new Euler();
@@ -20,28 +21,28 @@ const tmpScale = new Vector3(1, 1, 1);
 const tmpMatrix = new Matrix4();
 const tmpColor = new Color();
 
-/**
- * @typedef {Object} VFXParticlesSettings
- * @property {number} [nbParticles=1000]
- * @property {number} [intensity=1]
- * @property {"billboard"|"mesh"} [renderMode="mesh"]
- * @property {[number, number]} [fadeSize=[0.1, 0.9]]
- * @property {[number, number]} [fadeAlpha=[0, 1.0]]
- * @property {[number, number, number]} [gravity=[0, 0, 0]]
- */
+interface VFXParticlesSettings {
+  nbParticles?: number;
+  intensity?: number;
+  renderMode?: "billboard" | "mesh";
+  fadeSize?: [number, number];
+  fadeAlpha?: [number, number];
+  gravity?: [number, number, number];
+}
 
-/**
- * @typedef {Object} VFXParticlesProps
- * @property {string} name
- * @property {React.ReactElement} [geometry]
- * @property {THREE.Texture} [alphaMap]
- * @property {VFXParticlesSettings} settings
- */
+interface VFXParticlesProps {
+  name: string;
+  settings?: VFXParticlesSettings;
+  alphaMap?: THREE.Texture;
+  geometry?: React.ReactElement;
+}
 
-/**
- * @type React.FC<VFXParticlesProps>
- */
-const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
+const VFXParticles: React.FC<VFXParticlesProps> = ({
+  name,
+  settings = {},
+  alphaMap,
+  geometry,
+}) => {
   const {
     nbParticles = 1000,
     intensity = 1,
@@ -50,7 +51,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
     fadeAlpha = [0, 1.0],
     gravity = [0, 0, 0],
   } = settings;
-  const mesh = useRef();
+  const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
 
   const onBeforeRender = () => {
@@ -66,7 +67,8 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
       mesh.current.geometry.getAttribute("instanceSpeed"),
       mesh.current.geometry.getAttribute("instanceRotationSpeed"),
     ];
-    attributes.forEach((attribute) => {
+    attributes.forEach((attr) => {
+      const attribute = attr as THREE.InstancedBufferAttribute;
       attribute.clearUpdateRanges();
       if (lastCursor.current > cursor.current) {
         attribute.addUpdateRange(0, cursor.current * attribute.itemSize);
@@ -92,18 +94,25 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
   const lastCursor = useRef(0);
   const needsUpdate = useRef(false);
 
-  const emit = (count, setup) => {
-    const instanceColor = mesh.current.geometry.getAttribute("instanceColor");
-    const instanceColorEnd =
-      mesh.current.geometry.getAttribute("instanceColorEnd");
-    const instanceDirection =
-      mesh.current.geometry.getAttribute("instanceDirection");
-    const instanceLifetime =
-      mesh.current.geometry.getAttribute("instanceLifetime");
-    const instanceSpeed = mesh.current.geometry.getAttribute("instanceSpeed");
+  const emit = (count: number, setup: EmitCallbackSettingsFn) => {
+    const instanceColor = mesh.current.geometry.getAttribute(
+      "instanceColor"
+    ) as THREE.BufferAttribute;
+    const instanceColorEnd = mesh.current.geometry.getAttribute(
+      "instanceColorEnd"
+    ) as THREE.BufferAttribute;
+    const instanceDirection = mesh.current.geometry.getAttribute(
+      "instanceDirection"
+    ) as THREE.BufferAttribute;
+    const instanceLifetime = mesh.current.geometry.getAttribute(
+      "instanceLifetime"
+    ) as THREE.BufferAttribute;
+    const instanceSpeed = mesh.current.geometry.getAttribute(
+      "instanceSpeed"
+    ) as THREE.BufferAttribute;
     const instanceRotationSpeed = mesh.current.geometry.getAttribute(
       "instanceRotationSpeed"
-    );
+    ) as THREE.BufferAttribute;
 
     for (let i = 0; i < count; i++) {
       if (cursor.current >= nbParticles) {
@@ -140,7 +149,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
       );
       instanceDirection.set(direction, cursor.current * 3);
       instanceLifetime.set(lifetime, cursor.current * 2);
-      instanceSpeed.set([speed], cursor.current);
+      instanceSpeed.set(speed, cursor.current);
       instanceRotationSpeed.set(rotationSpeed, cursor.current * 3);
       cursor.current++;
       cursor.current = cursor.current % nbParticles;
@@ -169,11 +178,12 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
     if (!mesh.current) {
       return;
     }
-    mesh.current.material.uniforms.uTime.value = clock.elapsedTime;
-    mesh.current.material.uniforms.uIntensity.value = intensity;
-    mesh.current.material.uniforms.uFadeSize.value = fadeSize;
-    mesh.current.material.uniforms.uFadeAlpha.value = fadeAlpha;
-    mesh.current.material.uniforms.uGravity.value = gravity;
+    const material = mesh.current.material as THREE.ShaderMaterial;
+    material.uniforms.uTime.value = clock.elapsedTime;
+    material.uniforms.uIntensity.value = intensity;
+    material.uniforms.uFadeSize.value = fadeSize;
+    material.uniforms.uFadeAlpha.value = fadeAlpha;
+    material.uniforms.uGravity.value = gravity;
   });
 
   const registerEmitter = useVFX((state) => state.registerEmitter);
@@ -189,7 +199,9 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
   return (
     <>
       <instancedMesh
-        args={[defaultGeometry, null, nbParticles]}
+        // @ts-ignore
+        args={[defaultGeometry, undefined, nbParticles]}
+        // @ts-ignore
         ref={mesh}
         onBeforeRender={onBeforeRender}
       >
@@ -201,11 +213,13 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
             MESH_MODE: renderMode === "mesh",
           }}
           transparent
+          // @ts-ignore
           alphaMap={alphaMap}
           depthWrite={false}
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceColor"}
+          // @ts-ignore
           args={[attributeArrays.instanceColor]}
           itemSize={3}
           count={nbParticles}
@@ -213,6 +227,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceColorEnd"}
+          // @ts-ignore
           args={[attributeArrays.instanceColorEnd]}
           itemSize={3}
           count={nbParticles}
@@ -220,6 +235,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceDirection"}
+          // @ts-ignore
           args={[attributeArrays.instanceDirection]}
           itemSize={3}
           count={nbParticles}
@@ -227,6 +243,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceLifetime"}
+          // @ts-ignore
           args={[attributeArrays.instanceLifetime]}
           itemSize={2}
           count={nbParticles}
@@ -234,6 +251,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceSpeed"}
+          // @ts-ignore
           args={[attributeArrays.instanceSpeed]}
           itemSize={1}
           count={nbParticles}
@@ -241,6 +259,7 @@ const VFXParticles = ({ name, settings = {}, alphaMap, geometry }) => {
         />
         <instancedBufferAttribute
           attach={"geometry-attributes-instanceRotationSpeed"}
+          // @ts-ignore
           args={[attributeArrays.instanceRotationSpeed]}
           itemSize={3}
           count={nbParticles}
@@ -400,5 +419,10 @@ void main() {
 );
 
 extend({ ParticlesMaterial });
+declare module "@react-three/fiber" {
+  interface ThreeElements {
+    particlesMaterial: ThreeElements["shaderMaterial"];
+  }
+}
 
 export default VFXParticles;

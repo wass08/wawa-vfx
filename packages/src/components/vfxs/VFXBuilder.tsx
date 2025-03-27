@@ -1,8 +1,19 @@
 import { button, folder, useControls } from "leva";
 import { useEffect, useRef } from "react";
+import { VFXEmitterSettings } from "./VFXEmitter";
 
-export const VFXBuilderEmitter = ({ settings, onChange, onRestart }) => {
-  const {} = useControls("⚙️ Emitter Settings", {
+interface VFXBuilderEmitterProps {
+  settings?: VFXEmitterSettings;
+  onChange: (settings: VFXEmitterSettings) => void;
+  onRestart: () => void;
+}
+
+export const VFXBuilderEmitter: React.FC<VFXBuilderEmitterProps> = ({
+  settings,
+  onChange,
+  onRestart,
+}) => {
+  useControls("⚙️ Emitter Settings", {
     Restart: button(() => onRestart()),
     Export: button(() => {
       const exportValues = JSON.stringify(vfxSettingsClone.current);
@@ -122,16 +133,19 @@ export const VFXBuilderEmitter = ({ settings, onChange, onRestart }) => {
     }),
   }));
 
-  const builtSettings = {
+  const {
+    nbColors,
+    colorStart2,
+    colorEnd2,
+    colorStart3,
+    colorEnd3,
+    ...builtSettings
+  } = {
     ...vfxSettings,
     colorStart: [vfxSettings.colorStart],
     colorEnd: [vfxSettings.colorEnd],
   };
-  delete builtSettings.nbColors;
-  delete builtSettings.colorStart2;
-  delete builtSettings.colorEnd2;
-  delete builtSettings.colorStart3;
-  delete builtSettings.colorEnd3;
+
   vfxSettings.nbColors > 1 &&
     builtSettings.colorStart.push(vfxSettings.colorStart2);
   vfxSettings.nbColors > 1 &&
@@ -147,16 +161,16 @@ export const VFXBuilderEmitter = ({ settings, onChange, onRestart }) => {
 
   useEffect(() => {
     if (settings) {
-      const builderSettings = {
+      const builderSettings: any = {
         ...settings,
       };
       for (let i = 0; i < 2; i++) {
-        if (settings.colorStart?.length > i) {
+        if (settings.colorStart && settings.colorStart.length > i) {
           builderSettings[i === 0 ? "colorStart" : `colorStart${i + 1}`] =
             settings.colorStart[i];
           builderSettings.nbColors = i + 1;
         }
-        if (settings.colorEnd?.length > i) {
+        if (settings.colorEnd && settings.colorEnd.length > i) {
           builderSettings[i === 0 ? "colorEnd" : `colorEnd${i + 1}`] =
             settings.colorEnd[i];
         }
@@ -168,5 +182,7 @@ export const VFXBuilderEmitter = ({ settings, onChange, onRestart }) => {
     }
   }, [settings]);
 
-  onChange(builtSettings);
+  onChange(builtSettings as VFXEmitterSettings);
+
+  return null;
 };

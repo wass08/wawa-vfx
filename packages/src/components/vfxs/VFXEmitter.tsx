@@ -18,40 +18,37 @@ const worldEuler = new Euler();
 const worldRotation = new Euler();
 const worldScale = new Vector3();
 
-/**
- * @typedef {Object} VFXEmitterSettings
- * @property {number} [duration=1]
- * @property {number} [nbParticles=1000]
- * @property {"time"|"burst"} [spawnMode="time"]
- * @property {boolean} [loop=false]
- * @property {number} [delay=0]
- * @property {string[]} [colorStart=["white", "skyblue"]]
- * @property {string[]} [colorEnd=[]]
- * @property {[number, number]} [particlesLifetime=[0.1, 1]]
- * @property {[number, number]} [speed=[5, 20]]
- * @property {[number, number]} [size=[0.1, 1]]
- * @property {[number, number, number]} [startPositionMin=[-1, -1, -1]]
- * @property {[number, number, number]} [startPositionMax=[1, 1, 1]]
- * @property {[number, number, number]} [startRotationMin=[0, 0, 0]]
- * @property {[number, number, number]} [startRotationMax=[0, 0, 0]]
- * @property {[number, number, number]} [rotationSpeedMin=[0, 0, 0]]
- * @property {[number, number, number]} [rotationSpeedMax=[0, 0, 0]]
- * @property {[number, number, number]} [directionMin=[0, 0, 0]]
- * @property {[number, number, number]} [directionMax=[0, 0, 0]]
- */
+import * as THREE from "three";
 
-/**
- * @typedef {Object} VFXEmitterProps
- * @property {boolean} [debug]
- * @property {VFXEmitterSettings} [settings]
- * @property {string} emitter
- * @property {React.RefObject<THREE.Object3D>} [ref]
- */
+export interface VFXEmitterSettings {
+  duration?: number;
+  nbParticles?: number;
+  spawnMode?: "time" | "burst";
+  loop?: boolean;
+  delay?: number;
+  colorStart?: string[];
+  colorEnd?: string[];
+  particlesLifetime?: [number, number];
+  speed?: [number, number];
+  size?: [number, number];
+  startPositionMin?: [number, number, number];
+  startPositionMax?: [number, number, number];
+  startRotationMin?: [number, number, number];
+  startRotationMax?: [number, number, number];
+  rotationSpeedMin?: [number, number, number];
+  rotationSpeedMax?: [number, number, number];
+  directionMin?: [number, number, number];
+  directionMax?: [number, number, number];
+}
 
-/**
- * @type React.FC<VFXEmitterProps>
- */
-const VFXEmitter = forwardRef(
+interface VFXEmitterProps {
+  debug: boolean;
+  settings: VFXEmitterSettings;
+  emitter: string;
+  ref?: React.RefObject<THREE.Object3D>;
+}
+
+const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
   ({ debug, emitter, settings = {}, ...props }, forwardedRef) => {
     const [
       {
@@ -79,7 +76,7 @@ const VFXEmitter = forwardRef(
 
     const emit = useVFX((state) => state.emit);
 
-    const ref = useRef();
+    const ref = useRef<THREE.Object3D>(null!);
     useImperativeHandle(forwardedRef, () => ref.current);
 
     const emitted = useRef(0);
@@ -105,7 +102,7 @@ const VFXEmitter = forwardRef(
         const rate = particlesToEmit - emitted.current;
         if (rate > 0 && elapsedTime.current >= delay) {
           emit(emitter, rate, () => {
-            ref.current.updateWorldMatrix(true);
+            ref.current.updateWorldMatrix(true, true);
             const worldMatrix = ref.current.matrixWorld;
             worldMatrix.decompose(worldPosition, worldQuaternion, worldScale);
             worldEuler.setFromQuaternion(worldQuaternion);
@@ -178,6 +175,7 @@ const VFXEmitter = forwardRef(
     return (
       <>
         {settingsBuilder}
+        {/* @ts-ignore */}
         <object3D {...props} ref={ref} />
       </>
     );
