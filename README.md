@@ -8,7 +8,7 @@ A simple and easy-to-use library for creating visual effects with Three.js and R
 >
 > In the course, we break down every aspect of this system, explaining the mathematics, optimization techniques, and design patterns that make it work.
 
-<video src="https://assets.wawasensei.dev/react-three-fiber/fireworks/final-result.mp4" controls></video>
+https://github.com/user-attachments/assets/4c00c0e1-ae4f-4501-a648-0811c7a4ca7d
 
 ## Install
 
