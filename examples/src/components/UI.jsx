@@ -1,3 +1,26 @@
+const examples = [
+  {
+    label: "Simple particle emissions",
+    href: "#",
+  },
+  {
+    label: "Follow emitter",
+    href: "#emitter",
+  },
+  {
+    label: "Multiple emitters",
+    href: "#multiple-emitters",
+  },
+  {
+    label: "Alpha map",
+    href: "#alpha-map",
+  },
+  {
+    label: "Custom geometry",
+    href: "#custom-geometry",
+  },
+];
+
 export const UI = () => {
   return (
     <section className="fixed inset-0 z-10 flex items-center justify-center pointer-events-none">
@@ -22,6 +45,17 @@ export const UI = () => {
         >
           Learn Three.js & React Three Fiber
         </a>
+      </div>
+      <div className="absolute left-12 md:left-32 flex flex-col items-start gap-4 animation-delay-1500 animate-fade-in-down opacity-0">
+        {examples.map((example, index) => (
+          <a
+            key={index}
+            href={example.href}
+            className="text-white/60 text-sm font-medium pointer-events-auto select-none py-3 border-b border-b-white/60 hover:text-white hover:border-b-white transition-all duration-200 ease-in-out"
+          >
+            {example.label}
+          </a>
+        ))}
       </div>
     </section>
   );
