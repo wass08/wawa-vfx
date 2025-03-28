@@ -1,11 +1,23 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.0.5",
+  "version": "1.0.7",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/wawa-vfx.umd.js",
   "module": "dist/wawa-vfx.es.js",
+  "keywords": [
+    "react",
+    "three",
+    "react-three",
+    "react-three-fiber",
+    "react-three-drei",
+    "react-three-postprocessing",
+    "vfx",
+    "particles",
+    "effects"
+  ],
+  "description": "A simple and easy-to-use library for creating visual effects in React Three Fiber.",
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/wawa-vfx.es.js",
@@ -16,7 +28,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "cp ../README.md ./ && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
