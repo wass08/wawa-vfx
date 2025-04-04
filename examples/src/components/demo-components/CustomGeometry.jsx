@@ -18,7 +18,7 @@ export const CustomGeometry = () => {
         name="swords"
         geometry={<primitive object={nodes.Sword.geometry} />}
         settings={{
-          nbParticles: 100000,
+          nbParticles: 1000,
           gravity: [0, 0, 0],
           fadeSize: [0.3, 0.95],
           renderMode: "mesh",
