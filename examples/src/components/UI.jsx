@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 const examples = [
   {
     label: "Simple particle emissions",
@@ -22,6 +24,23 @@ const examples = [
 ];
 
 export const UI = () => {
+  const [currentHash, setCurrentHash] = useState(
+    window.location.hash.replace("#", "")
+  );
+
+  useEffect(() => {
+    // When hash in the url changes, update the href state
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash.replace("#", ""));
+    };
+    window.addEventListener("hashchange", handleHashChange);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
+
   return (
     <section className="fixed inset-0 z-10 flex items-center justify-center pointer-events-none">
       <div className="absolute top-4 left-4 md:top-8 md:left-14 opacity-0 animate-fade-in-down animation-delay-200">
@@ -51,7 +70,11 @@ export const UI = () => {
           <a
             key={index}
             href={example.href}
-            className="text-white/60 text-sm font-medium pointer-events-auto select-none py-3 border-b border-b-white/60 hover:text-white hover:border-b-white transition-all duration-200 ease-in-out"
+            className={`${
+              currentHash === example.href.replace("#", "")
+                ? "text-amber-300/80 border-b-amber-300/80 "
+                : "text-white/60 border-b-white/60 "
+            } text-sm font-medium pointer-events-auto select-none py-3 border-b  hover:text-white hover:border-b-white transition-all duration-200 ease-in-out`}
           >
             {example.label}
           </a>
