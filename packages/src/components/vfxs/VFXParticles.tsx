@@ -132,6 +132,10 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
 
       tmpPosition.set(...position);
       tmpRotationEuler.set(...rotation);
+      if (renderMode === "billboard") {
+        tmpRotationEuler.x = 0;
+        tmpRotationEuler.y = 0;
+      }
       tmpRotation.setFromEuler(tmpRotationEuler);
       tmpScale.set(...scale);
       tmpMatrix.compose(tmpPosition, tmpRotation, tmpScale);
