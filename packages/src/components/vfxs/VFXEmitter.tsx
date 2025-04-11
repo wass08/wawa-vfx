@@ -49,7 +49,6 @@ interface VFXEmitterProps {
   ref?: React.RefObject<THREE.Object3D>;
 }
 
-
 const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
   ({ debug, emitter, settings = {}, ...props }, forwardedRef) => {
     const [
@@ -92,8 +91,8 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
 
     useFrame(({ clock }, delta) => {
       const time = clock.getElapsedTime();
-      const shouldEmit = useVFX.getState().shouldEmit
-      console.log(shouldEmit)
+      const shouldEmit = useVFX.getState();
+
       if (emitted.current < nbParticles || loop) {
         if (!ref || !shouldEmit) {
           return;
