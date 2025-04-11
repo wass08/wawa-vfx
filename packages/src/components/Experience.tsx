@@ -6,16 +6,24 @@ import { Object3D } from "three";
 import VFXEmitter from "./vfxs/VFXEmitter";
 import VFXParticles from "./vfxs/VFXParticles";
 
+export interface VFXEmitterMethods extends Object3D {
+  stopEmitting: () => void;
+  startEmitting: () => void;
+}
+
 export const Experience = () => {
-  const emitterBlue = useRef<Object3D>(null);
+  const emitterBlue = useRef<VFXEmitterMethods>(null);
 
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
+  
     if (emitterBlue.current) {
       emitterBlue.current.position.x = Math.cos(time * 6) * 1.5;
       emitterBlue.current.position.y = Math.sin(time * 3) * 1.5;
       emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
+
+      // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
     }
   });
 
