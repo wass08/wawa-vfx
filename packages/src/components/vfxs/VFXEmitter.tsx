@@ -91,7 +91,7 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
 
     useFrame(({ clock }, delta) => {
       const time = clock.getElapsedTime();
-      const shouldEmit = useVFX.getState();
+      const shouldEmit = useVFX.getState().shouldEmit;
 
       if (emitted.current < nbParticles || loop) {
         if (!ref || !shouldEmit) {

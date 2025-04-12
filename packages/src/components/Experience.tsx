@@ -22,7 +22,7 @@ export const Experience = () => {
       emitterBlue.current.position.x = Math.cos(time * 6) * 1.5;
       emitterBlue.current.position.y = Math.sin(time * 3) * 1.5;
       emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
-
+      
       // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
     }
   });
