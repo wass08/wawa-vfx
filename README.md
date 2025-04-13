@@ -133,6 +133,7 @@ Do you want to contribute to the project? Here are some ideas for future feature
 - [ ] Performance optimizations (Points / Sprites)
 - [ ] More controls on the `VFXEmitter` component (`emit`, `emitStart`, `emitStop`)
 - [ ] More customization options for the particle system
+- [ ] More rendering modes (`stretched billboard`)
 - [ ] More examples and documentation
 
 Feel free to open an issue or PR if you have any suggestions or improvements!
