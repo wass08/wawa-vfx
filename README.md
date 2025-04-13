@@ -124,3 +124,15 @@ const MyEffect = () => {
 ## Advanced Usage
 
 Check out the `examples` directory for more complex implementations and techniques.
+
+## Roadmap
+
+Do you want to contribute to the project? Here are some ideas for future features:
+
+- [ ] WebGPU/TSL `VFXParticles`/`VFXParticlesMaterial` versions
+- [ ] Performance optimizations (Points / Sprites)
+- [ ] More controls on the `VFXEmitter` component (`emit`, `emitStart`, `emitStop`)
+- [ ] More customization options for the particle system
+- [ ] More examples and documentation
+
+Feel free to open an issue or PR if you have any suggestions or improvements!
