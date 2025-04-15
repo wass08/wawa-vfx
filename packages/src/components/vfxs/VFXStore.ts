@@ -16,6 +16,7 @@ export type EmitCallbackSettingsFn = () => EmitCallbackSettings;
 
 interface VFXStore {
   emitters: Record<string, (...args: any[]) => void>;
+  shouldEmit: boolean;
   registerEmitter: (name: string, emitter: (...args: any[]) => void) => void;
   unregisterEmitter: (name: string) => void;
   emit: (name: string, rate: number, callback: EmitCallbackSettingsFn) => void;
@@ -23,6 +24,7 @@ interface VFXStore {
 
 export const useVFX = create<VFXStore>((set, get) => ({
   emitters: {},
+  shouldEmit: true,
   registerEmitter: (name: string, emitter) => {
     if (get().emitters[name]) {
       console.warn(`Emitter ${name} already exists`);
@@ -39,12 +41,12 @@ export const useVFX = create<VFXStore>((set, get) => ({
       return state;
     });
   },
-  emit: (name, ...params) => {
+  emit: (name, rate, callback) => {
     const emitter = get().emitters[name];
     if (!emitter) {
       console.warn(`Emitter ${name} not found`);
       return;
     }
-    emitter(...params);
+    emitter(rate, callback);
   },
 }));

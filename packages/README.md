@@ -35,6 +35,15 @@ Wawa VFX makes it easy to create particle effects in your React Three Fiber proj
 import { VFXEmitter, VFXParticles } from "wawa-vfx";
 
 const MyEffect = () => {
+  const emitterRef = useRef<VFXEmitterProps>(null);
+  
+  useFrame(() => {
+    if(emitterRef.current) {
+      emitterRef.current.startEmitting(); // by default is true, but you can set it to false to start the emission without using a React re-Rendering if shouldEmit is false
+      emitterRef.current.stopEmitting(); // Stop emitting particles without causing a React re-Rendering if shouldEmit is false
+    }
+  })
+
   return (
     <>
       {/* Step 1: Define your particle system */}
@@ -53,6 +62,7 @@ const MyEffect = () => {
       {/* Step 2: Define your emitter */}
       <VFXEmitter
         debug // Show debug visualization
+        ref={emitterRef}
         emitter="particles" // Target the particle system by name
         settings={{
           loop: true, // Continuously emit particles (only if `spawnMode` is 'time')

@@ -76,17 +76,32 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
 
     const emit = useVFX((state) => state.emit);
 
-    const ref = useRef<THREE.Object3D>(null!);
-    useImperativeHandle(forwardedRef, () => ref.current);
+    const shouldEmitRef = useRef<boolean>(true);
+    
+    const stopEmitting = useCallback(() => {
+      shouldEmitRef.current = false;
+    }, []);
+
+    const startEmitting = useCallback(() => {
+      shouldEmitRef.current = true;
+    }, []);
+
+    const ref = useRef<any>(null!);
+    useImperativeHandle(forwardedRef, () => ({
+      ...ref.current,
+      stopEmitting,
+      startEmitting,
+    }));
 
     const emitted = useRef(0);
     const elapsedTime = useRef(0);
 
     useFrame(({ clock }, delta) => {
       const time = clock.getElapsedTime();
+      const shouldEmit = shouldEmitRef.current;
 
       if (emitted.current < nbParticles || loop) {
-        if (!ref) {
+        if (!ref || !shouldEmit) {
           return;
         }
         const particlesToEmit =
