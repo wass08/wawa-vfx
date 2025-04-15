@@ -20,8 +20,6 @@ interface VFXStore {
   registerEmitter: (name: string, emitter: (...args: any[]) => void) => void;
   unregisterEmitter: (name: string) => void;
   emit: (name: string, rate: number, callback: EmitCallbackSettingsFn) => void;
-  stopEmitting: () => void;
-  startEmitting: () => void;
 }
 
 export const useVFX = create<VFXStore>((set, get) => ({
@@ -32,19 +30,15 @@ export const useVFX = create<VFXStore>((set, get) => ({
       console.warn(`Emitter ${name} already exists`);
       return;
     }
-    set((state) => ({
-      emitters: {
-        ...state.emitters,
-        [name]: emitter,
-      },
-    }));
+    set((state) => {
+      state.emitters[name] = emitter;
+      return state;
+    });
   },
   unregisterEmitter: (name) => {
     set((state) => {
-      const { [name]: _, ...rest } = state.emitters;
-      return {
-        emitters: rest,
-      };
+      delete state.emitters[name];
+      return state;
     });
   },
   emit: (name, rate, callback) => {
@@ -54,15 +48,5 @@ export const useVFX = create<VFXStore>((set, get) => ({
       return;
     }
     emitter(rate, callback);
-  },
-  stopEmitting: () => {
-    set(() => ({
-      shouldEmit: false,
-    }));
-  },
-  startEmitting: () => {
-    set(() => ({
-      shouldEmit: true,
-    }));
   },
 }));

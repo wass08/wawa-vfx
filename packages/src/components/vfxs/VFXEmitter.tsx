@@ -19,7 +19,6 @@ const worldRotation = new Euler();
 const worldScale = new Vector3();
 
 import * as THREE from "three";
-import { VFXEmitterMethods } from "../Experience";
 
 export interface VFXEmitterSettings {
   duration?: number;
@@ -76,8 +75,16 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
     ] = useState(settings);
 
     const emit = useVFX((state) => state.emit);
-    const stopEmitting = useVFX((state) => state.stopEmitting);
-    const startEmitting = useVFX((state) => state.startEmitting);
+
+    const shouldEmitRef = useRef<boolean>(true);
+    
+    const stopEmitting = useCallback(() => {
+      shouldEmitRef.current = false;
+    }, []);
+
+    const startEmitting = useCallback(() => {
+      shouldEmitRef.current = true;
+    }, []);
 
     const ref = useRef<any>(null!);
     useImperativeHandle(forwardedRef, () => ({
@@ -91,7 +98,7 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
 
     useFrame(({ clock }, delta) => {
       const time = clock.getElapsedTime();
-      const shouldEmit = useVFX.getState().shouldEmit;
+      const shouldEmit = shouldEmitRef.current;
 
       if (emitted.current < nbParticles || loop) {
         if (!ref || !shouldEmit) {
