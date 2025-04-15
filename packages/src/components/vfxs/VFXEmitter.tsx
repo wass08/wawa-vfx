@@ -45,10 +45,14 @@ interface VFXEmitterProps {
   debug: boolean;
   settings: VFXEmitterSettings;
   emitter: string;
-  ref?: React.RefObject<THREE.Object3D>;
 }
 
-const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
+export interface VFXEmitterRef extends THREE.Object3D {
+  startEmitting: (reset?: boolean) => void;
+  stopEmitting: () => void;
+}
+
+const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
   ({ debug, emitter, settings = {}, ...props }, forwardedRef) => {
     const [
       {
@@ -77,12 +81,16 @@ const VFXEmitter = forwardRef<THREE.Object3D, VFXEmitterProps>(
     const emit = useVFX((state) => state.emit);
 
     const shouldEmitRef = useRef<boolean>(true);
-    
+
     const stopEmitting = useCallback(() => {
       shouldEmitRef.current = false;
     }, []);
 
-    const startEmitting = useCallback(() => {
+    const startEmitting = useCallback((reset: boolean = false) => {
+      if (reset) {
+        emitted.current = 0;
+        elapsedTime.current = 0;
+      }
       shouldEmitRef.current = true;
     }, []);
 

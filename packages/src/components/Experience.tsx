@@ -1,28 +1,34 @@
 import { Environment, OrbitControls, Stats } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
+import { button, useControls } from "leva";
 import { useRef } from "react";
-import { Object3D } from "three";
-import VFXEmitter from "./vfxs/VFXEmitter";
+import VFXEmitter, { VFXEmitterRef } from "./vfxs/VFXEmitter";
 import VFXParticles from "./vfxs/VFXParticles";
 
-export interface VFXEmitterMethods extends Object3D {
-  stopEmitting: () => void;
-  startEmitting: () => void;
-}
-
 export const Experience = () => {
-  const emitterBlue = useRef<VFXEmitterMethods>(null);
+  const emitterBlue = useRef<VFXEmitterRef>(null);
+
+  useControls("Emitter External Controls", {
+    start: button(() => {
+      emitterBlue.current?.startEmitting();
+    }),
+    startWithReset: button(() => {
+      emitterBlue.current?.startEmitting(true);
+    }),
+    stop: button(() => {
+      emitterBlue.current?.stopEmitting();
+    }),
+  });
 
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
-  
     if (emitterBlue.current) {
       emitterBlue.current.position.x = Math.cos(time * 6) * 1.5;
       emitterBlue.current.position.y = Math.sin(time * 3) * 1.5;
       emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
-      
+
       // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
     }
   });
