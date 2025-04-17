@@ -28,6 +28,7 @@ interface VFXParticlesSettings {
   fadeSize?: [number, number];
   fadeAlpha?: [number, number];
   gravity?: [number, number, number];
+  frustumCulled?: boolean;
 }
 
 interface VFXParticlesProps {
@@ -50,6 +51,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     fadeSize = [0.1, 0.9],
     fadeAlpha = [0, 1.0],
     gravity = [0, 0, 0],
+    frustumCulled = true,
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
@@ -211,6 +213,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
           nbParticles,
         ]}
         ref={mesh as React.RefObject<THREE.InstancedMesh>}
+        frustumCulled={frustumCulled}
         onBeforeRender={onBeforeRender}
       >
         {geometry}
