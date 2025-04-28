@@ -284,6 +284,8 @@ const ParticlesMaterial = shaderMaterial(
     alphaMap: null,
   },
   /* glsl */ `
+
+
 mat4 rotationX(float angle) {
   float s = sin(angle);
   float c = cos(angle);
@@ -377,12 +379,38 @@ void main() {
   #endif
   #ifdef BILLBOARD_MODE
   /* Billboard Mode */
-    vec4 localPos = vec4(position, 1.0);
-    localPos.xyz = billboard(position.xy, viewMatrix) * scale;
+    // Instance position (translation from instanceMatrix)
+    vec3 instancePosition = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz + offset;
     
-    vec4 worldPos = modelMatrix * instanceMatrix * rotationMatrix * localPos;
-    worldPos.xyz += offset; // Apply offset in world space
-    mvPosition = modelViewMatrix * worldPos;
+    // Compute billboard's local coordinate system
+    // Forward vector (billboard's local Z-axis, points toward camera)
+    vec3 localZ = normalize(cameraPosition - instancePosition);
+    // World up vector (assuming Y-up world)
+    vec3 worldUp = vec3(0.0, 1.0, 0.0);
+    // Local X-axis (right vector)
+    vec3 localX = normalize(cross(worldUp, localZ));
+    // Local Y-axis (up vector)
+    vec3 localY = cross(localZ, localX);
+
+    // Construct billboard's orientation matrix (converts from local to world space)
+    mat3 billboardMatrix = mat3(localX, localY, localZ);
+
+    float scaleX = length(instanceMatrix[0].xyz);
+    float scaleY = length(instanceMatrix[1].xyz);
+    float scaleZ = length(instanceMatrix[2].xyz);
+    vec3 instanceScale = vec3(scaleX, scaleY, scaleZ);
+
+    // Combine billboard orientation with local rotation
+    mat3 finalMatrix = billboardMatrix * mat3(rotationMatrix);
+
+    // Extract final right and up vectors, apply scale
+    vec3 finalRight = finalMatrix[0] * instanceScale * scale;
+    vec3 finalUp = finalMatrix[1] * instanceScale * scale;
+    // Compute vertex position in world space
+    vec3 vertexWorldPos = instancePosition +
+                          finalRight * position.x +
+                          finalUp * position.y;
+    mvPosition = viewMatrix * vec4(vertexWorldPos, 1.0);
   #endif
 
   gl_Position = projectionMatrix * mvPosition;

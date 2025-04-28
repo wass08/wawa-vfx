@@ -42,7 +42,7 @@ export interface VFXEmitterSettings {
 }
 
 interface VFXEmitterProps {
-  debug: boolean;
+  debug?: boolean;
   settings: VFXEmitterSettings;
   emitter: string;
 }

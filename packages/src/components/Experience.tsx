@@ -40,11 +40,11 @@ export const Experience = () => {
       <Environment preset="sunset" />
       <VFXParticles
         name="sparks"
-        geometry={<capsuleGeometry args={[0.02, 0.2, 1, 8]} />}
+        // geometry={<capsuleGeometry args={[0.02, 0.2, 1, 8]} />}
         settings={{
           nbParticles: 100000,
           intensity: 1.5,
-          renderMode: "mesh",
+          renderMode: "billboard",
           fadeSize: [0, 1],
           fadeAlpha: [0.5, 0.5],
           gravity: [0, -10, 0],
@@ -73,6 +73,26 @@ export const Experience = () => {
           colorStart: ["#50ff7c"],
           colorEnd: ["#ffffff"],
           size: [0.1, 1],
+        }}
+      />
+      <VFXEmitter
+        emitter="sparks"
+        settings={{
+          loop: true,
+          duration: 1,
+          nbParticles: 1000,
+          startPositionMin: [-1, -12, -1],
+          startPositionMax: [1, 12, 1],
+          directionMin: [0, 1, 0],
+          directionMax: [2, 1, 0],
+          size: [0.01, 2],
+          particlesLifetime: [1, 8],
+          speed: [1, 5],
+          colorStart: ["red", "darkred"],
+          startRotationMin: [0, 0, -1],
+          startRotationMax: [0, 0, 1],
+          rotationSpeedMin: [0, 0, 0],
+          rotationSpeedMax: [0, 0, 5],
         }}
       />
       <EffectComposer>
