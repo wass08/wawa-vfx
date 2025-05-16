@@ -55,13 +55,15 @@ function StretchBillboard() {
     <VFXParticles
       name="sparks"
       settings={{
-        nbParticles: 100000,
-        intensity: 1.5,
-        renderMode: "billboard",
-        fadeSize: [0, 1],
-        fadeAlpha: [0, 1],
+        nbParticles: 10000,
+        intensity: 3,
+        renderMode: "stretchBillboard",
+        stretchScale: 1,
+        fadeSize: [0, 0],
+        fadeAlpha: [0, 0],
         gravity: [0, 0, 0],
-        appearance: "circular"
+        appearance: "circular",
+        easeFunction: 'easeInElastic'
       }}
     />
     <VFXEmitter
@@ -69,24 +71,24 @@ function StretchBillboard() {
       ref={emitterBlue}
       emitter="sparks"
       settings={{
-        duration: 0.001,
+        duration: 0.01,
         delay: 0,
-        nbParticles: 2,
+        nbParticles: 1,
         spawnMode: "time",
         loop: true,
         startPositionMin: [0, 0, 0],
         startPositionMax: [0, 0, 0],
         startRotationMin: [0, 0, 0],
         startRotationMax: [0, 0, 0],
-        particlesLifetime: [1, 2],
+        particlesLifetime: [2, 3],
         speed: [1, 2],
-        directionMin: [-0.5, -.5, 0],
-        directionMax: [0.5, 0.5, 0],
+        directionMin: [-0.5, -.5, -.5],
+        directionMax: [0.5, 0.5, .5],
         rotationSpeedMin: [0, 0, 0],
         rotationSpeedMax: [0, 0, 0],
         colorStart: ["#ff0000"],
         colorEnd: ["#0000ff"],
-        size: [0.1, 0.2],
+        size: [0.02, 0.1],
       }}
     />
     </>
