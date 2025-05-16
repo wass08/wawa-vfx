@@ -5,6 +5,7 @@ import { button, useControls } from "leva";
 import { useRef } from "react";
 import VFXEmitter, { VFXEmitterRef } from "./vfxs/VFXEmitter";
 import VFXParticles from "./vfxs/VFXParticles";
+import { easeFunctionList } from "./vfxs/types";
 
 export const Experience = () => {
 
@@ -27,7 +28,7 @@ function StretchBillboard() {
   
   const emitterBlue = useRef<VFXEmitterRef>(null);
 
-  useControls("Emitter External Controls", {
+  const { easing, renderMode} = useControls("Emitter External Controls", {
     start: button(() => {
       emitterBlue.current?.startEmitting();
     }),
@@ -37,6 +38,16 @@ function StretchBillboard() {
     stop: button(() => {
       emitterBlue.current?.stopEmitting();
     }),
+    easing: {
+      label: "Easing",
+      options: easeFunctionList,
+      value: "easeLinear"
+    },
+    renderMode: {
+      label: "renderMode",
+      options: ["mesh", "billboard", "stretchBillboard"],
+      value: "billboard"
+    }
   });
   
   useFrame(({ clock }) => {
@@ -55,19 +66,15 @@ function StretchBillboard() {
     <VFXParticles
       name="sparks"
       settings={{
-        nbParticles: 100000,
+        nbParticles: 10000,
         intensity: 1.5,
-        renderMode: "billboard",
+        renderMode: renderMode,
         stretchScale: 1,
         fadeSize: [0, 0],
         fadeAlpha: [0, 0],
         gravity: [0, 0, 0],
         appearance: "circular",
-        easeFunction: 'easeOutPower1'
-        fadeSize: [0, 1],
-        fadeAlpha: [0, 1],
-        gravity: [0, 0, 0],
-        appearance: "circular"
+        easeFunction: easing,
       }}
     />
     <VFXEmitter
@@ -75,7 +82,7 @@ function StretchBillboard() {
       ref={emitterBlue}
       emitter="sparks"
       settings={{
-        duration: 0.001,
+        duration: 0.01,
         delay: 0,
         nbParticles: 2,
         spawnMode: "time",
