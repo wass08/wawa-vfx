@@ -29,7 +29,15 @@ interface VFXParticlesSettings {
   fadeAlpha?: [number, number];
   gravity?: [number, number, number];
   frustumCulled?: boolean;
+  appearance?: "default" | "circular";
 }
+
+const AppearanceModes = {
+  SQUARE: 0,
+  CIRCULAR: 1,
+} as const;
+
+type AppearanceModeValue = (typeof AppearanceModes)[keyof typeof AppearanceModes];
 
 interface VFXParticlesProps {
   name: string;
@@ -52,6 +60,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     fadeAlpha = [0, 1.0],
     gravity = [0, 0, 0],
     frustumCulled = true,
+    appearance = "default",
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
@@ -190,6 +199,9 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     material.uniforms.uFadeSize.value = fadeSize;
     material.uniforms.uFadeAlpha.value = fadeAlpha;
     material.uniforms.uGravity.value = gravity;
+    material.uniforms.uAppearanceMode.value = 
+      appearance === "circular" ? AppearanceModes.CIRCULAR :
+      AppearanceModes.SQUARE;
   });
 
   const registerEmitter = useVFX((state) => state.registerEmitter);
@@ -281,6 +293,7 @@ const ParticlesMaterial = shaderMaterial(
     uFadeSize: [0.1, 0.9],
     uFadeAlpha: [0, 1.0],
     uGravity: [0, 0, 0],
+    uAppearanceMode: 0,
     alphaMap: null,
   },
   /* glsl */ `
@@ -424,6 +437,7 @@ void main() {
 uniform float uIntensity;
 uniform vec2 uFadeAlpha;
 uniform sampler2D alphaMap;
+uniform int uAppearanceMode;
 
 varying vec3 vColor;
 varying vec3 vColorEnd;
@@ -445,6 +459,14 @@ void main() {
     vec4 tex = texture2D(alphaMap, uv);
     gl_FragColor = vec4(finalColor, tex.a * alpha);
   #else
+    if(uAppearanceMode == 1){
+      vec2 center = vec2(0.5);
+      float dist = distance(vUv, center);
+      
+      if(dist > 0.5){
+        discard; // creating circular shape 
+      }
+    }
     gl_FragColor = vec4(finalColor, alpha);
   #endif
 }`
