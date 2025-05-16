@@ -58,6 +58,12 @@ function StretchBillboard() {
         nbParticles: 100000,
         intensity: 1.5,
         renderMode: "billboard",
+        stretchScale: 1,
+        fadeSize: [0, 0],
+        fadeAlpha: [0, 0],
+        gravity: [0, 0, 0],
+        appearance: "circular",
+        easeFunction: 'easeOutPower1'
         fadeSize: [0, 1],
         fadeAlpha: [0, 1],
         gravity: [0, 0, 0],
@@ -78,15 +84,15 @@ function StretchBillboard() {
         startPositionMax: [0, 0, 0],
         startRotationMin: [0, 0, 0],
         startRotationMax: [0, 0, 0],
-        particlesLifetime: [1, 2],
+        particlesLifetime: [2, 3],
         speed: [1, 2],
-        directionMin: [-0.5, -.5, 0],
-        directionMax: [0.5, 0.5, 0],
+        directionMin: [-0.5, -.5, -.5],
+        directionMax: [0.5, 0.5, .5],
         rotationSpeedMin: [0, 0, 0],
         rotationSpeedMax: [0, 0, 0],
         colorStart: ["#ff0000"],
         colorEnd: ["#0000ff"],
-        size: [0.1, 0.2],
+        size: [0.02, 0.1],
       }}
     />
     </>
@@ -162,3 +168,4 @@ function BaseVFX() {
     </>
   )
 }
+
