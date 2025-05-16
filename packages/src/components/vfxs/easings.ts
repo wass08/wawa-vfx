@@ -8,6 +8,64 @@ float easeLinear(float t)
     
 }
 
+// --------- Power1 ---------
+float easeInPower1(float t) {
+    return t;
+}
+
+float easeOutPower1(float t) {
+    return 1.0 - (1.0 - t);
+}
+
+float easeInOutPower1(float t) {
+    return t;
+}
+
+// --------- Power2 ---------
+float easeInPower2(float t) {
+    return t * t;
+}
+
+float easeOutPower2(float t) {
+    return 1.0 - pow(1.0 - t, 2.0);
+}
+
+float easeInOutPower2(float t) {
+    return t < 0.5
+        ? 2.0 * t * t
+        : 1.0 - pow(-2.0 * t + 2.0, 2.0) / 2.0;
+}
+
+// --------- Power3 ---------
+float easeInPower3(float t) {
+    return t * t * t;
+}
+
+float easeOutPower3(float t) {
+    return 1.0 - pow(1.0 - t, 3.0);
+}
+
+float easeInOutPower3(float t) {
+    return t < 0.5
+        ? 4.0 * t * t * t
+        : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
+}
+
+// --------- Power4 ---------
+float easeInPower4(float t) {
+    return t * t * t * t;
+}
+
+float easeOutPower4(float t) {
+    return 1.0 - pow(1.0 - t, 4.0);
+}
+
+float easeInOutPower4(float t) {
+    return t < 0.5
+        ? 8.0 * t * t * t * t
+        : 1.0 - pow(-2.0 * t + 2.0, 4.0) / 2.0;
+}
+
 // Quad
 float easeInQuad(float t) {
     return t * t;

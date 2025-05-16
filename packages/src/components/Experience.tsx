@@ -17,7 +17,7 @@ export const Experience = () => {
       {/* <BaseVFX/> */}
       <StretchBillboard />
       <EffectComposer>
-        <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />
+        {/* <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur /> */}
       </EffectComposer>
     </>
   );
@@ -55,15 +55,15 @@ function StretchBillboard() {
     <VFXParticles
       name="sparks"
       settings={{
-        nbParticles: 10000,
-        intensity: 3,
-        renderMode: "stretchBillboard",
+        nbParticles: 100000,
+        intensity: 1.5,
+        renderMode: "billboard",
         stretchScale: 1,
         fadeSize: [0, 0],
         fadeAlpha: [0, 0],
         gravity: [0, 0, 0],
         appearance: "circular",
-        easeFunction: 'easeInElastic'
+        easeFunction: 'easeOutPower1'
       }}
     />
     <VFXEmitter
@@ -71,7 +71,7 @@ function StretchBillboard() {
       ref={emitterBlue}
       emitter="sparks"
       settings={{
-        duration: 0.01,
+        duration: 0.0001,
         delay: 0,
         nbParticles: 1,
         spawnMode: "time",
