@@ -41,6 +41,8 @@ const AppearanceModes = {
   CIRCULAR: 1,
 } as const;
 
+type AppearanceModeValue = (typeof AppearanceModes)[keyof typeof AppearanceModes];
+  
 interface VFXParticlesProps {
   name: string;
   settings?: VFXParticlesSettings;
