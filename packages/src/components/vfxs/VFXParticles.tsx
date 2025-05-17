@@ -13,6 +13,8 @@ import {
   Vector3,
 } from "three";
 import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
+import { easings } from "./easings";
+import { AppearanceMode, EaseFunction, easeFunctionList } from "./types";
 
 const tmpPosition = new Vector3();
 const tmpRotationEuler = new Euler();
@@ -21,16 +23,26 @@ const tmpScale = new Vector3(1, 1, 1);
 const tmpMatrix = new Matrix4();
 const tmpColor = new Color();
 
+enum AppearanceModes {
+  SQUARE = 0,
+  CIRCULAR = 1,
+}
+
 interface VFXParticlesSettings {
   nbParticles?: number;
   intensity?: number;
-  renderMode?: "billboard" | "mesh";
+  renderMode?: "stretchBillboard" | "billboard" | "mesh";
+  stretchScale?: number;
   fadeSize?: [number, number];
   fadeAlpha?: [number, number];
   gravity?: [number, number, number];
   frustumCulled?: boolean;
+  appearance?: AppearanceMode;
+  easeFunction?: EaseFunction;
 }
 
+
+  
 interface VFXParticlesProps {
   name: string;
   settings?: VFXParticlesSettings;
@@ -48,13 +60,17 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     nbParticles = 1000,
     intensity = 1,
     renderMode = "mesh",
+    stretchScale = 1.0,
     fadeSize = [0.1, 0.9],
     fadeAlpha = [0, 1.0],
     gravity = [0, 0, 0],
     frustumCulled = true,
+    appearance = AppearanceModes.SQUARE,
+    easeFunction = "easeLinear",
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
+  const easingIndex = easeFunctionList.indexOf(easeFunction);
 
   const onBeforeRender = () => {
     if (!needsUpdate.current || !mesh.current) {
@@ -134,7 +150,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
 
       tmpPosition.set(...position);
       tmpRotationEuler.set(...rotation);
-      if (renderMode === "billboard") {
+      if (renderMode === "billboard" || renderMode === "stretchBillboard") {
         tmpRotationEuler.x = 0;
         tmpRotationEuler.y = 0;
       }
@@ -187,9 +203,12 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     const material = mesh.current.material as THREE.ShaderMaterial;
     material.uniforms.uTime.value = clock.elapsedTime;
     material.uniforms.uIntensity.value = intensity;
+    material.uniforms.uStretchScale.value = stretchScale;
     material.uniforms.uFadeSize.value = fadeSize;
     material.uniforms.uFadeAlpha.value = fadeAlpha;
     material.uniforms.uGravity.value = gravity;
+    material.uniforms.uAppearanceMode.value = appearance;
+    material.uniforms.uEasingFunction.value = easingIndex;
   });
 
   const registerEmitter = useVFX((state) => state.registerEmitter);
@@ -220,6 +239,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
         <particlesMaterial
           blending={AdditiveBlending}
           defines={{
+            STRETCH_BILLBOARD_MODE: renderMode === "stretchBillboard",
             BILLBOARD_MODE: renderMode === "billboard",
             MESH_MODE: renderMode === "mesh",
           }}
@@ -278,14 +298,16 @@ const ParticlesMaterial = shaderMaterial(
   {
     uTime: 0,
     uIntensity: 1,
+    uStretchScale: 1,
     uFadeSize: [0.1, 0.9],
     uFadeAlpha: [0, 1.0],
     uGravity: [0, 0, 0],
+    uAppearanceMode: 0,
     alphaMap: null,
+    uEasingFunction: 0,
   },
   /* glsl */ `
-
-
+${easings}
 mat4 rotationX(float angle) {
   float s = sin(angle);
   float c = cos(angle);
@@ -330,6 +352,8 @@ vec3 billboard(vec2 v, mat4 view) {
 uniform float uTime;
 uniform vec2 uFadeSize;
 uniform vec3 uGravity;
+uniform float uStretchScale;
+uniform int uEasingFunction;
 
 varying vec2 vUv;
 varying vec3 vColor;
@@ -347,7 +371,7 @@ void main() {
   float startTime = instanceLifetime.x;
   float duration = instanceLifetime.y;
   float age = uTime - startTime;
-  vProgress = age / duration;
+  vProgress = applyEasing(clamp(age / duration, 0.0, 1.0), uEasingFunction);
   if (vProgress < 0.0 || vProgress > 1.0) {
     gl_Position = vec4(vec3(9999.0), 1.0);
     return;
@@ -357,8 +381,8 @@ void main() {
 
   vec3 normalizedDirection = length(instanceDirection) > 0.0 ? normalize(instanceDirection) : vec3(0.0);
   vec3 gravityForce = 0.5 * uGravity * (age * age);
-
-  vec3 offset = normalizedDirection * age * instanceSpeed;
+  float easedAge = vProgress * duration;
+  vec3 offset = normalizedDirection * easedAge * instanceSpeed;
   offset += gravityForce;
 
   vec3 rotationSpeed = instanceRotationSpeed * age;
@@ -412,6 +436,33 @@ void main() {
                           finalUp * position.y;
     mvPosition = viewMatrix * vec4(vertexWorldPos, 1.0);
   #endif
+  #ifdef STRETCH_BILLBOARD_MODE
+    vec3 instancePosition = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz + offset;
+    vec3 viewDir = normalize(cameraPosition - instancePosition);
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    vec3 right = normalize(cross(abs(dot(viewDir, up)) > 0.99 ? vec3(1,0,0) : up, viewDir));
+    vec3 velocity = instanceDirection * instanceSpeed + uGravity * age;
+    vec3 stretchDir = normalize(velocity);
+    float stretchLength = length(velocity);
+    // stretchLength = clamp(stretchLength, 0., 1.0);
+    stretchLength *= uStretchScale;
+    float scaleX = length(instanceMatrix[0].xyz);
+    float scaleY = length(instanceMatrix[1].xyz);
+    float scaleZ = length(instanceMatrix[2].xyz);
+    float instanceScale = (scaleX + scaleY + scaleZ);
+    float width = scale * instanceScale;
+    float height = (scale + stretchLength) * instanceScale;
+    
+  
+    vec3 finalRight = right * width;
+    vec3 finalUp = normalize(stretchDir) * height * sign(dot(stretchDir, viewDir));
+    
+    vec3 vertexWorldPos = instancePosition +
+                          finalRight * position.x +
+                          finalUp * position.y;
+  
+    mvPosition = viewMatrix * vec4(vertexWorldPos, 1.0);
+  #endif
 
   gl_Position = projectionMatrix * mvPosition;
 
@@ -424,6 +475,7 @@ void main() {
 uniform float uIntensity;
 uniform vec2 uFadeAlpha;
 uniform sampler2D alphaMap;
+uniform int uAppearanceMode;
 
 varying vec3 vColor;
 varying vec3 vColorEnd;
@@ -445,6 +497,14 @@ void main() {
     vec4 tex = texture2D(alphaMap, uv);
     gl_FragColor = vec4(finalColor, tex.a * alpha);
   #else
+    if(uAppearanceMode == 1){
+      vec2 center = vec2(0.5);
+      float dist = distance(vUv, center);
+      
+      if(dist > 0.5){
+        discard; // creating circular shape 
+      }
+    }
     gl_FragColor = vec4(finalColor, alpha);
   #endif
 }`

@@ -5,8 +5,109 @@ import { button, useControls } from "leva";
 import { useRef } from "react";
 import VFXEmitter, { VFXEmitterRef } from "./vfxs/VFXEmitter";
 import VFXParticles from "./vfxs/VFXParticles";
+import { easeFunctionList } from "./vfxs/types";
 
 export const Experience = () => {
+
+
+  return (
+    <>
+      <Stats />
+      <OrbitControls enablePan={false} />
+      <Environment preset="sunset" />
+      {/* <BaseVFX/> */}
+      <StretchBillboard />
+      <EffectComposer>
+        <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />
+      </EffectComposer>
+    </>
+  );
+};
+
+function StretchBillboard() {
+  
+  const emitterBlue = useRef<VFXEmitterRef>(null);
+
+  const { easing, renderMode} = useControls("Emitter External Controls", {
+    start: button(() => {
+      emitterBlue.current?.startEmitting();
+    }),
+    startWithReset: button(() => {
+      emitterBlue.current?.startEmitting(true);
+    }),
+    stop: button(() => {
+      emitterBlue.current?.stopEmitting();
+    }),
+    easing: {
+      label: "Easing",
+      options: easeFunctionList,
+      value: "easeLinear"
+    },
+    renderMode: {
+      label: "renderMode",
+      options: ["mesh", "billboard", "stretchBillboard"],
+      value: "billboard"
+    }
+  });
+  
+  useFrame(({ clock }) => {
+    const time = clock.getElapsedTime();
+
+    if (emitterBlue.current) {
+      emitterBlue.current.position.x = Math.cos(time) * 3;
+      emitterBlue.current.position.y = Math.sin(time) * 3;
+      // emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
+
+      // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
+    }
+  });
+  return(
+    <>
+    <VFXParticles
+      name="sparks"
+      settings={{
+        nbParticles: 10000,
+        intensity: 1.5,
+        renderMode: renderMode,
+        stretchScale: 1,
+        fadeSize: [0, 0],
+        fadeAlpha: [0, 0],
+        gravity: [0, 0, 0],
+        appearance: "circular",
+        easeFunction: easing,
+      }}
+    />
+    <VFXEmitter
+      debug
+      ref={emitterBlue}
+      emitter="sparks"
+      settings={{
+        duration: 0.01,
+        delay: 0,
+        nbParticles: 2,
+        spawnMode: "time",
+        loop: true,
+        startPositionMin: [0, 0, 0],
+        startPositionMax: [0, 0, 0],
+        startRotationMin: [0, 0, 0],
+        startRotationMax: [0, 0, 0],
+        particlesLifetime: [2, 3],
+        speed: [1, 2],
+        directionMin: [-0.5, -.5, -.5],
+        directionMax: [0.5, 0.5, .5],
+        rotationSpeedMin: [0, 0, 0],
+        rotationSpeedMax: [0, 0, 0],
+        colorStart: ["#ff0000"],
+        colorEnd: ["#0000ff"],
+        size: [0.02, 0.1],
+      }}
+    />
+    </>
+  )
+}
+
+function BaseVFX() {
+  
   const emitterBlue = useRef<VFXEmitterRef>(null);
 
   useControls("Emitter External Controls", {
@@ -20,84 +121,58 @@ export const Experience = () => {
       emitterBlue.current?.stopEmitting();
     }),
   });
-
+  
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
     if (emitterBlue.current) {
-      emitterBlue.current.position.x = Math.cos(time * 6) * 1.5;
+      emitterBlue.current.position.x = Math.cos(time * 3) * 1.5;
       emitterBlue.current.position.y = Math.sin(time * 3) * 1.5;
-      emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
+      // emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
 
       // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
     }
   });
-
-  return (
+  return(
     <>
-      <Stats />
-      <OrbitControls enablePan={false} />
-      <Environment preset="sunset" />
-      <VFXParticles
-        name="sparks"
-        // geometry={<capsuleGeometry args={[0.02, 0.2, 1, 8]} />}
-        settings={{
-          nbParticles: 100000,
-          intensity: 1.5,
-          renderMode: "billboard",
-          fadeSize: [0, 1],
-          fadeAlpha: [0.5, 0.5],
-          gravity: [0, -10, 0],
-        }}
-      />
-      <VFXEmitter
-        debug
-        ref={emitterBlue}
-        emitter="sparks"
-        settings={{
-          duration: 4,
-          delay: 0,
-          nbParticles: 5000,
-          spawnMode: "time",
-          loop: false,
-          startPositionMin: [0, 0, 0],
-          startPositionMax: [0, 0, 0],
-          startRotationMin: [0, 0, 0],
-          startRotationMax: [0, 0, 0],
-          particlesLifetime: [0.1, 1],
-          speed: [1, 5],
-          directionMin: [-0.5, 0, -0.5],
-          directionMax: [0.5, 1, 0.5],
-          rotationSpeedMin: [10, 0, 10],
-          rotationSpeedMax: [10, 0, 10],
-          colorStart: ["#50ff7c"],
-          colorEnd: ["#ffffff"],
-          size: [0.1, 1],
-        }}
-      />
-      <VFXEmitter
-        emitter="sparks"
-        settings={{
-          loop: true,
-          duration: 1,
-          nbParticles: 1000,
-          startPositionMin: [-1, -12, -1],
-          startPositionMax: [1, 12, 1],
-          directionMin: [0, 1, 0],
-          directionMax: [2, 1, 0],
-          size: [0.01, 2],
-          particlesLifetime: [1, 8],
-          speed: [1, 5],
-          colorStart: ["red", "darkred"],
-          startRotationMin: [0, 0, -1],
-          startRotationMax: [0, 0, 1],
-          rotationSpeedMin: [0, 0, 0],
-          rotationSpeedMax: [0, 0, 5],
-        }}
-      />
-      <EffectComposer>
-        <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />
-      </EffectComposer>
+    <VFXParticles
+      name="sparks"
+      geometry={<capsuleGeometry args={[0.02, 0.2, 1, 8]} />}
+      settings={{
+        nbParticles: 100000,
+        intensity: 1.5,
+        renderMode: "billboard",
+        fadeSize: [0, 1],
+        fadeAlpha: [0.5, 0.5],
+        gravity: [0, -10, 0],
+      }}
+    />
+    <VFXEmitter
+      debug
+      ref={emitterBlue}
+      emitter="sparks"
+      settings={{
+        duration: 4,
+        delay: 0,
+        nbParticles: 5000,
+        spawnMode: "time",
+        loop: true,
+        startPositionMin: [0, 0, 0],
+        startPositionMax: [0, 0, 0],
+        startRotationMin: [0, 0, 0],
+        startRotationMax: [0, 0, 0],
+        particlesLifetime: [0.1, 1],
+        speed: [1, 5],
+        directionMin: [-0.5, 0, -0.5],
+        directionMax: [0.5, 1, 0.5],
+        rotationSpeedMin: [10, 0, 10],
+        rotationSpeedMax: [10, 0, 10],
+        colorStart: ["#50ff7c"],
+        colorEnd: ["#ffffff"],
+        size: [0.1, 1],
+      }}
+    />
     </>
-  );
-};
+  )
+}
+
