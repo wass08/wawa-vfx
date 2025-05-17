@@ -39,6 +39,7 @@ export interface VFXEmitterSettings {
   rotationSpeedMax?: [number, number, number];
   directionMin?: [number, number, number];
   directionMax?: [number, number, number];
+  useLocalDirection?: boolean;
 }
 
 interface VFXEmitterProps {
@@ -74,6 +75,7 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
         rotationSpeedMax = [0, 0, 0],
         directionMin = [0, 0, 0],
         directionMax = [0, 0, 0],
+        useLocalDirection = false,
       },
       setSettings,
     ] = useState(settings);
@@ -142,11 +144,15 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
                 worldPosition.z +
                   randFloat(startPositionMin[2], startPositionMax[2]),
               ],
-              direction: [
-                randFloat(directionMin[0], directionMax[0]),
-                randFloat(directionMin[1], directionMax[1]),
-                randFloat(directionMin[2], directionMax[2]),
-              ],
+              direction: (() => {
+                const dir = new Vector3(
+                  randFloat(directionMin[0], directionMax[0]),
+                  randFloat(directionMin[1], directionMax[1]),
+                  randFloat(directionMin[2], directionMax[2])
+                );
+                useLocalDirection && dir.applyQuaternion(worldQuaternion);
+                return [dir.x, dir.y, dir.z];
+              })(),
               scale: [randSize, randSize, randSize],
               rotation: [
                 worldRotation.x +
