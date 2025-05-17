@@ -63,8 +63,8 @@ function StretchBillboard() {
     const time = clock.getElapsedTime();
 
     if (emitterBlue.current) {
-      // emitterBlue.current.position.x = Math.cos(time) * 3;
-      // emitterBlue.current.position.y = Math.sin(time) * 3;
+      emitterBlue.current.position.x = Math.cos(time) * 3;
+      emitterBlue.current.position.y = Math.sin(time) * 3;
       // emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
       // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
     }
@@ -151,7 +151,7 @@ function BaseVFX() {
           renderMode: RenderMode.Billboard,
           fadeSize: [0, 1],
           fadeAlpha: [0.5, 0.5],
-          gravity: [, -10, 0],
+          gravity: [0, -10, 0],
         }}
       />
       <VFXEmitter
