@@ -1,4 +1,6 @@
 // todo, add all types here
+
+export type AppearanceMode = "default" | "circular";
 export type EaseFunction =
   "easeLinear"
 

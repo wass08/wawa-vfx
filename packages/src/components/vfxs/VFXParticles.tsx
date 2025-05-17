@@ -14,7 +14,7 @@ import {
 } from "three";
 import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
 import { easings } from "./easings";
-import { EaseFunction, easeFunctionList } from "./types";
+import { AppearanceMode, EaseFunction, easeFunctionList } from "./types";
 
 const tmpPosition = new Vector3();
 const tmpRotationEuler = new Euler();
@@ -22,6 +22,11 @@ const tmpRotation = new Quaternion();
 const tmpScale = new Vector3(1, 1, 1);
 const tmpMatrix = new Matrix4();
 const tmpColor = new Color();
+
+enum AppearanceModes {
+  SQUARE = 0,
+  CIRCULAR = 1,
+}
 
 interface VFXParticlesSettings {
   nbParticles?: number;
@@ -32,16 +37,11 @@ interface VFXParticlesSettings {
   fadeAlpha?: [number, number];
   gravity?: [number, number, number];
   frustumCulled?: boolean;
-  appearance?: "default" | "circular";
+  appearance?: AppearanceMode;
   easeFunction?: EaseFunction;
 }
 
-const AppearanceModes = {
-  SQUARE: 0,
-  CIRCULAR: 1,
-} as const;
 
-type AppearanceModeValue = (typeof AppearanceModes)[keyof typeof AppearanceModes];
   
 interface VFXParticlesProps {
   name: string;
@@ -65,7 +65,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     fadeAlpha = [0, 1.0],
     gravity = [0, 0, 0],
     frustumCulled = true,
-    appearance = "default",
+    appearance = AppearanceModes.SQUARE,
     easeFunction = "easeLinear",
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
@@ -207,9 +207,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     material.uniforms.uFadeSize.value = fadeSize;
     material.uniforms.uFadeAlpha.value = fadeAlpha;
     material.uniforms.uGravity.value = gravity;
-    material.uniforms.uAppearanceMode.value = 
-      appearance === "circular" ? AppearanceModes.CIRCULAR :
-      AppearanceModes.SQUARE;
+    material.uniforms.uAppearanceMode.value = appearance;
     material.uniforms.uEasingFunction.value = easingIndex;
   });
 
