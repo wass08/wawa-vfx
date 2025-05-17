@@ -14,7 +14,12 @@ import {
 } from "three";
 import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
 import { easings } from "./easings";
-import { AppearanceMode, EaseFunction, easeFunctionList } from "./types";
+import {
+  AppearanceMode,
+  EaseFunction,
+  easeFunctionList,
+  RenderMode,
+} from "./types";
 
 const tmpPosition = new Vector3();
 const tmpRotationEuler = new Euler();
@@ -23,15 +28,10 @@ const tmpScale = new Vector3(1, 1, 1);
 const tmpMatrix = new Matrix4();
 const tmpColor = new Color();
 
-enum AppearanceModes {
-  SQUARE = 0,
-  CIRCULAR = 1,
-}
-
 interface VFXParticlesSettings {
   nbParticles?: number;
   intensity?: number;
-  renderMode?: "stretchBillboard" | "billboard" | "mesh";
+  renderMode?: RenderMode;
   stretchScale?: number;
   fadeSize?: [number, number];
   fadeAlpha?: [number, number];
@@ -41,8 +41,6 @@ interface VFXParticlesSettings {
   easeFunction?: EaseFunction;
 }
 
-
-  
 interface VFXParticlesProps {
   name: string;
   settings?: VFXParticlesSettings;
@@ -59,13 +57,13 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
   const {
     nbParticles = 1000,
     intensity = 1,
-    renderMode = "mesh",
+    renderMode = RenderMode.Mesh,
     stretchScale = 1.0,
     fadeSize = [0.1, 0.9],
     fadeAlpha = [0, 1.0],
     gravity = [0, 0, 0],
     frustumCulled = true,
-    appearance = AppearanceModes.SQUARE,
+    appearance = AppearanceMode.Square,
     easeFunction = "easeLinear",
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
@@ -497,7 +495,7 @@ void main() {
     vec4 tex = texture2D(alphaMap, uv);
     gl_FragColor = vec4(finalColor, tex.a * alpha);
   #else
-    if(uAppearanceMode == 1){
+    if(uAppearanceMode == 1){ // Circular
       vec2 center = vec2(0.5);
       float dist = distance(vUv, center);
       

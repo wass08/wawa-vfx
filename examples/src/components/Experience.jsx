@@ -6,6 +6,7 @@ import { Basic } from "./demo-components/Basic";
 import { CustomGeometry } from "./demo-components/CustomGeometry";
 import { Emitter } from "./demo-components/Emitter";
 import { MultipleEmitters } from "./demo-components/MultipleEmitters";
+import { StretchedBillboard } from "./demo-components/StretchedBillboard";
 import { GradientSky } from "./GradientSky";
 
 export const Experience = () => {
@@ -51,6 +52,7 @@ export const Experience = () => {
       {currentHash === "multiple-emitters" && <MultipleEmitters />}
       {currentHash === "alpha-map" && <AlphaMap />}
       {currentHash === "custom-geometry" && <CustomGeometry />}
+      {currentHash === "stretched-billboard" && <StretchedBillboard />}
 
       <EffectComposer>
         <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />

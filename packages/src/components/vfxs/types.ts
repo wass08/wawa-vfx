@@ -1,8 +1,16 @@
-// todo, add all types here
+export enum AppearanceMode {
+  Square = 0,
+  Circular = 1,
+}
 
-export type AppearanceMode = "default" | "circular";
+export enum RenderMode {
+  StretchBillboard = "stretchBillboard",
+  Billboard = "billboard",
+  Mesh = "mesh",
+}
+
 export type EaseFunction =
-  "easeLinear"
+  | "easeLinear"
 
   // Power1
   | "easeInPower1"
