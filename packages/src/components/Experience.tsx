@@ -11,6 +11,7 @@ import {
   easeFunctionList,
   RenderMode,
 } from "./vfxs/types";
+import { Group } from "three";
 
 export const Experience = () => {
   const { component } = useControls("Component", {
@@ -36,6 +37,7 @@ export const Experience = () => {
 
 function StretchBillboard() {
   const emitterBlue = useRef<VFXEmitterRef>(null);
+  const groupRef = useRef<Group>(null);
 
   const { easing, renderMode } = useControls("Emitter External Controls", {
     start: button(() => {
@@ -59,14 +61,11 @@ function StretchBillboard() {
     },
   });
 
-  useFrame(({ clock }) => {
-    const time = clock.getElapsedTime();
+  useFrame((state, delta) => {
+    const time = state.clock.getElapsedTime();
 
-    if (emitterBlue.current) {
-      // emitterBlue.current.position.x = Math.cos(time) * 3;
-      // emitterBlue.current.position.y = Math.sin(time) * 3;
-      // emitterBlue.current.position.z = Math.cos(time * 4) * 1.5;
-      // now you can stop or start emitting using the methods stopEmitting or startEmitting by accessing the emitterBlue ref.current object
+    if (emitterBlue.current && groupRef.current) {
+      groupRef.current.rotation.z += delta * 10;
     }
   });
   return (
@@ -74,42 +73,47 @@ function StretchBillboard() {
       <VFXParticles
         name="sparks"
         settings={{
-          nbParticles: 10000,
-          intensity: 1.5,
+          nbParticles: 200000,
+          intensity: 0.5,
           renderMode: renderMode as RenderMode,
-          stretchScale: 1,
+          stretchScale: 0.2,
           fadeSize: [0, 0],
           fadeAlpha: [0, 0],
-          gravity: [0, -3, 0],
-          appearance: AppearanceMode.Square,
+          gravity: [0, 0, 0],
+          appearance: AppearanceMode.Circular,
           easeFunction: easing as EaseFunction,
         }}
       />
-      <VFXEmitter
-        debug
-        ref={emitterBlue}
-        emitter="sparks"
-        settings={{
-          duration: 0.01,
-          delay: 0,
-          nbParticles: 2,
-          spawnMode: "time",
-          loop: true,
-          startPositionMin: [0, 0, 0],
-          startPositionMax: [0, 0, 0],
-          startRotationMin: [0, 0, 0],
-          startRotationMax: [0, 0, 0],
-          particlesLifetime: [2, 3],
-          speed: [1, 2],
-          directionMin: [-0.5, -0.5, -0.5],
-          directionMax: [0.5, 0.5, 0.5],
-          rotationSpeedMin: [0, 0, 0],
-          rotationSpeedMax: [0, 0, 0],
-          colorStart: ["#ff0000"],
-          colorEnd: ["#0000ff"],
-          size: [0.02, 0.1],
-        }}
-      />
+      <group ref={groupRef}>
+        <group position={[2, 0, 0]}><VFXEmitter
+          debug
+          ref={emitterBlue}
+          emitter="sparks"
+          localDirection={true}
+          settings={{
+            duration: 0.0001,
+            delay: 0,
+            nbParticles: 5,
+            spawnMode: "time",
+            loop: true,
+            startPositionMin: [0, -0.2, -0.2],
+            startPositionMax: [0, 0.2, 0.2],
+            startRotationMin: [0, 0, 0],
+            startRotationMax: [0, 0, 0],
+            particlesLifetime: [0.5, 1],
+            speed: [4, 5],
+            directionMin: [0., 0.7, 0],
+            directionMax: [0.5, 1, 0.5],
+            rotationSpeedMin: [0, 0, 0],
+            rotationSpeedMax: [0, 0, 0],
+            colorStart: ["#ffa600"],
+            colorEnd: ["#000000"],
+            size: [0.04, 0.1],
+          }}
+        />
+      
+        </group> 
+      </group>
     </>
   );
 }

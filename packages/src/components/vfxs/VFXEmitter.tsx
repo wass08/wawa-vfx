@@ -39,13 +39,13 @@ export interface VFXEmitterSettings {
   rotationSpeedMax?: [number, number, number];
   directionMin?: [number, number, number];
   directionMax?: [number, number, number];
-  useLocalDirection?: boolean;
 }
 
 interface VFXEmitterProps {
   debug?: boolean;
   settings: VFXEmitterSettings;
   emitter: string;
+  localDirection?: boolean;
 }
 
 export interface VFXEmitterRef extends THREE.Object3D {
@@ -54,7 +54,7 @@ export interface VFXEmitterRef extends THREE.Object3D {
 }
 
 const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
-  ({ debug, emitter, settings = {}, ...props }, forwardedRef) => {
+  ({ debug, emitter, settings = {}, localDirection, ...props }, forwardedRef) => {
     const [
       {
         duration = 1,
@@ -75,7 +75,6 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
         rotationSpeedMax = [0, 0, 0],
         directionMin = [0, 0, 0],
         directionMax = [0, 0, 0],
-        useLocalDirection = false,
       },
       setSettings,
     ] = useState(settings);
@@ -150,7 +149,7 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
                   randFloat(directionMin[1], directionMax[1]),
                   randFloat(directionMin[2], directionMax[2])
                 );
-                useLocalDirection && dir.applyQuaternion(worldQuaternion);
+                localDirection && dir.applyQuaternion(worldQuaternion);
                 return [dir.x, dir.y, dir.z];
               })(),
               scale: [randSize, randSize, randSize],
