@@ -16,7 +16,7 @@ export const StretchedBillboard = () => {
         Math.cos(time * 2) * 6,
         Math.sin(time * 4) * 8
       );
-      // emitter.current.position.lerp(tmpVector, delta * 2);
+      emitter.current.position.lerp(tmpVector, delta * 2);
     }
   });
   return (
@@ -25,41 +25,39 @@ export const StretchedBillboard = () => {
         name="particles"
         settings={{
           nbParticles: 100000,
-          gravity: [0, 0, 0],
+          gravity: [0, -10, 0],
           fadeSize: [0, 0],
           fadeOpacity: [0, 0],
           renderMode: "stretchBillboard",
           intensity: 6,
-          easeFunction: "easeInOutQuad",
           stretchScale: 0.4,
         }}
       />
 
       <group ref={emitter}>
         <mesh>
-          <sphereGeometry args={[0.2, 16, 16]} />
+          <sphereGeometry args={[0.05, 16, 16]} />
           <meshStandardMaterial
-            color="white"
-            emissive={"pink"}
-            emissiveIntensity={3}
+            color="red"
+            emissive={"red"}
+            emissiveIntensity={8}
           />
         </mesh>
         <VFXEmitter
-          debug
+          // debug
           emitter="particles"
           settings={{
             loop: true,
             duration: 1,
-            nbParticles: 100,
+            nbParticles: 500,
             particlesLifetime: [0.1, 1],
             startPositionMin: [-0.1, -0.1, -0.1],
             startPositionMax: [0.1, 0.1, 0.1],
             directionMin: [-0.5, 0, -0.5],
-            directionMax: [0.5, 0, 0.5],
-            size: [0.01, 0.35],
-            speed: [3, 5],
-            colorStart: ["pink", "skyblue"],
-            colorEnd: ["pink", "blue"],
+            directionMax: [0.5, 1, 0.5],
+            size: [0.01, 0.1],
+            speed: [3, 8],
+            colorStart: ["red", "pink", "mediumpurple"],
           }}
         />
       </group>

@@ -47,8 +47,8 @@ const MyEffect = () => {
           fadeOpacity: [0, 0], // Opacity fade in/out settings
           renderMode: "billboard", // "billboard" or "mesh" or "stretchBillboard"
           intensity: 3, // Brightness multiplier
-          appearance: "default", // "default or circular"
-          easing: "easeLinear" // add easing to the particle animations (see EaseFunction in vfxs/types.ts)
+          appearance: AppearanceMode.Circular, // Define the default appearance to be plane (default) or circular
+          easing: "easeLinear", // add easing to the particle animations (see EaseFunction in vfxs/types.ts)
         }}
       />
 
@@ -92,7 +92,9 @@ const MyEffect = () => {
 
           // Color at end - an array of strings for random selection
           colorEnd: ["white", "pink"],
-          useLocalDirection: false // Particle's directions are relative to the world or the emitter's quaternion
+
+          // When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
+          useLocalDirection: true,
         }}
       />
     </>
@@ -109,7 +111,7 @@ const MyEffect = () => {
 
 ### New features ✨
 
-##### VFXParticles : 
+##### VFXParticles :
 
 ###### 🔷 Explicit Appearance Mode
 
@@ -121,18 +123,19 @@ A new renderMode: "stretchBillboard" option has been added. This renders particl
 
 ###### 🔷 Particle Easings
 
-You can now apply easing function enabling smooth transitions over the particle’s lifetime. Easing options includes 42 functions from which you can choose using typescript's autocomplete feature. 
+You can now apply easing function enabling smooth transitions over the particle’s lifetime. Easing options includes 42 functions from which you can choose using typescript's autocomplete feature.
 
-#### VFXEmitter : 
+##### VFXEmitter :
 
 🔷 useLocalDirection Setting
 
 A new boolean setting:
-```jsx 
+
+```jsx
   useLocalDirection?: boolean; // true | false
 ```
-When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
 
+When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
 
 ### VFXParticles Properties
 
@@ -163,7 +166,7 @@ Do you want to contribute to the project? Here are some ideas for future feature
 - [ ] Performance optimizations (Points / Sprites)
 - [ ] More controls on the `VFXEmitter` component (`emit`, `emitStart`, `emitStop`, `emitByDistance`)
 - [ ] More customization options for the particle system
-- [✅] More rendering modes (`stretched billboard`)
+- [x] More rendering modes (`stretched billboard`)
 - [ ] More examples and documentation
 
 Feel free to open an issue or PR if you have any suggestions or improvements!

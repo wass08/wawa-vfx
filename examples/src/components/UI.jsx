@@ -17,10 +17,10 @@ const examples = [
     label: "Alpha map",
     href: "#alpha-map",
   },
-  // {
-  //   label: "Stretched billboard",
-  //   href: "#stretched-billboard",
-  // },
+  {
+    label: "Stretched billboard",
+    href: "#stretched-billboard",
+  },
   {
     label: "Custom geometry",
     href: "#custom-geometry",

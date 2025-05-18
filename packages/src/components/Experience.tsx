@@ -66,6 +66,7 @@ function StretchBillboard() {
 
     if (emitterBlue.current && groupRef.current) {
       groupRef.current.rotation.z += delta * 10;
+
     }
   });
   return (
@@ -155,7 +156,7 @@ function BaseVFX() {
           renderMode: RenderMode.Billboard,
           fadeSize: [0, 1],
           fadeAlpha: [0.5, 0.5],
-          gravity: [, -10, 0],
+          gravity: [0, -10, 0],
         }}
       />
       <VFXEmitter
