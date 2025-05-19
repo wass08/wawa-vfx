@@ -11,14 +11,15 @@ import {
   easeFunctionList,
   RenderMode,
 } from "./vfxs/types";
-import { Group } from "three";
+import { Group, Vector3 } from "three";
+import { randFloat } from "three/src/math/MathUtils.js";
 
 export const Experience = () => {
   const { component } = useControls("Component", {
     component: {
       label: "Component",
-      options: ["BaseVFX", "StretchBillboard"],
-      value: "StretchBillboard",
+      options: ["Fireworks", "BaseVFX", "StretchBillboard"],
+      value: "Fireworks",
     },
   });
   return (
@@ -28,12 +29,68 @@ export const Experience = () => {
       <Environment preset="sunset" />
       {component === "BaseVFX" && <BaseVFX />}
       {component === "StretchBillboard" && <StretchBillboard />}
+      {component === "Fireworks" && <Fireworks />}
       <EffectComposer>
         <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />
       </EffectComposer>
     </>
   );
 };
+
+function Fireworks() {
+  const emitter = useRef<VFXEmitterRef>(null);
+  const groupRef = useRef<Group>(null);
+  
+  useFrame(() => {
+    if(emitter.current){
+    emitter.current.emitAtPos(new Vector3(10, 2, 0), true)
+    }
+  })
+  
+  return (
+    <>
+      <VFXParticles
+        name='fireworks'
+        settings={{
+          nbParticles: 100000,
+          intensity: 0.1,
+          renderMode: RenderMode.StretchBillboard,
+          stretchScale: 0.1,
+          fadeSize: [0, 0],
+          fadeAlpha: [0, 1],
+          gravity: [0, 0, 0],
+          appearance: AppearanceMode.Circular,
+          easeFunction: "easeOutPower2",
+        }}
+      />
+      <VFXEmitter
+        emitter="fireworks"
+        ref={emitter}
+        debug
+        settings={{
+          duration: 4,
+          delay: 0,
+          nbParticles: 1000,
+          spawnMode: "burst",
+          loop: true,
+          startPositionMin: [0, 0, 0],
+          startPositionMax: [0, 0, 0],
+          startRotationMin: [0, 0, 0],
+          startRotationMax: [0, 0, 0],
+          particlesLifetime: [0.5, 1],
+          speed: [2, 5],
+          directionMin: [-1, -1, -1],
+          directionMax: [1, 1, 1],
+          rotationSpeedMin: [0, 0, 0],
+          rotationSpeedMax: [0, 0, 0],
+          colorStart: ["#ffa600"],
+          // colorEnd: ["#000000"],
+          size: [0.04, 0.1],
+        }}
+        />
+    </>
+  )
+}
 
 function StretchBillboard() {
   const emitterBlue = useRef<VFXEmitterRef>(null);
@@ -65,8 +122,7 @@ function StretchBillboard() {
     const time = state.clock.getElapsedTime();
 
     if (emitterBlue.current && groupRef.current) {
-      groupRef.current.rotation.z += delta * 10;
-
+      groupRef.current.rotation.z += delta * 20;
     }
   });
   return (
@@ -74,10 +130,10 @@ function StretchBillboard() {
       <VFXParticles
         name="sparks"
         settings={{
-          nbParticles: 200000,
+          nbParticles: 500000,
           intensity: 0.5,
           renderMode: renderMode as RenderMode,
-          stretchScale: 0.2,
+          stretchScale: 0.1,
           fadeSize: [0, 0],
           fadeAlpha: [0, 0],
           gravity: [0, 0, 0],
@@ -92,18 +148,18 @@ function StretchBillboard() {
           emitter="sparks"
           localDirection={true}
           settings={{
-            duration: 0.0001,
+            duration: 0.001,
             delay: 0,
-            nbParticles: 5,
+            nbParticles: 1,
             spawnMode: "time",
             loop: true,
-            startPositionMin: [0, -0.2, -0.2],
-            startPositionMax: [0, 0.2, 0.2],
+            startPositionMin: [0, 0, -0.2],
+            startPositionMax: [0, 0, 0.2],
             startRotationMin: [0, 0, 0],
             startRotationMax: [0, 0, 0],
             particlesLifetime: [0.5, 1],
             speed: [4, 5],
-            directionMin: [0., 0.7, 0],
+            directionMin: [0., 1, 0],
             directionMax: [0.5, 1, 0.5],
             rotationSpeedMin: [0, 0, 0],
             rotationSpeedMax: [0, 0, 0],

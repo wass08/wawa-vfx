@@ -439,8 +439,11 @@ void main() {
     vec3 viewDir = normalize(cameraPosition - instancePosition);
     vec3 up = vec3(0.0, 1.0, 0.0);
     vec3 right = normalize(cross(abs(dot(viewDir, up)) > 0.99 ? vec3(1,0,0) : up, viewDir));
-    vec3 velocity = instanceDirection * instanceSpeed + uGravity * easedAge;
+    vec3 velocity = instanceDirection * instanceSpeed * easedAge + uGravity;
     vec3 stretchDir = normalize(velocity);
+    stretchDir.x = abs(stretchDir.x) < 0.2 ? (stretchDir.x >= 0. ? 0.2 : -.2) : stretchDir.x;
+    stretchDir.y = abs(stretchDir.y) < 0.2 ? (stretchDir.y >= 0. ? 0.2 : -.2) : stretchDir.y;
+    stretchDir.z = abs(stretchDir.z) < 0.2 ? (stretchDir.z >= 0. ? 0.2 : -.2) : stretchDir.z;
     float stretchLength = length(velocity);
     // stretchLength = clamp(stretchLength, 0., 1.0);
     stretchLength *= uStretchScale;
