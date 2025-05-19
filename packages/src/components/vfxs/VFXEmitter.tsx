@@ -46,15 +46,18 @@ interface VFXEmitterProps {
   settings: VFXEmitterSettings;
   emitter: string;
   localDirection?: boolean;
+  autoStart?: boolean;
+
 }
 
 export interface VFXEmitterRef extends THREE.Object3D {
   startEmitting: (reset?: boolean) => void;
   stopEmitting: () => void;
+  emitAtPos: (position: THREE.Vector3 | null, reset?: boolean) => void;
 }
 
 const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
-  ({ debug, emitter, settings = {}, localDirection, ...props }, forwardedRef) => {
+  ({ debug, emitter, settings = {}, localDirection, autoStart = true, ...props }, forwardedRef) => {
     const [
       {
         duration = 1,
@@ -79,9 +82,14 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
       setSettings,
     ] = useState(settings);
 
+    const emitted = useRef(0);
+    const elapsedTime = useRef(0);
+    const currentTime = useRef(0);
+    const ref = useRef<any>(null!);
+
     const emit = useVFX((state) => state.emit);
 
-    const shouldEmitRef = useRef<boolean>(true);
+    const shouldEmitRef = useRef<boolean>((autoStart));
 
     const stopEmitting = useCallback(() => {
       shouldEmitRef.current = false;
@@ -94,19 +102,87 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
       }
       shouldEmitRef.current = true;
     }, []);
+    
+    const emitAtPos = useCallback((pos: Vector3 | null, reset: boolean = false) => {
+      if(spawnMode !== "burst"){
+        console.error("This function is meant to be used with burst spawn mode only.");
+      }
+      const rate = nbParticles - emitted.current;
+      if (reset) {
+        emitted.current = 0;
+        elapsedTime.current = 0;
+      }
 
-    const ref = useRef<any>(null!);
+      if (!pos) {
+          ref.current.updateWorldMatrix(true, true);
+          const worldMatrix = ref.current.matrixWorld;
+          worldMatrix.decompose(worldPosition, worldQuaternion, worldScale);
+          worldEuler.setFromQuaternion(worldQuaternion);
+          worldRotation.setFromQuaternion(worldQuaternion);
+        } else {
+          ref.current.position.x = pos.x;
+          ref.current.position.y = pos.y;
+          ref.current.position.z = pos.z;
+        }
+
+      emit(emitter, rate, () => {
+        const randSize = randFloat(size[0], size[1]);
+        const color = colorStart[randInt(0, colorStart.length - 1)];
+        return {
+          position: [
+            worldPosition.x +
+            randFloat(startPositionMin[0], startPositionMax[0]),
+            worldPosition.y +
+            randFloat(startPositionMin[1], startPositionMax[1]),
+            worldPosition.z +
+            randFloat(startPositionMin[2], startPositionMax[2]),
+          ],
+          direction: (() => {
+            const dir = new Vector3(
+              randFloat(directionMin[0], directionMax[0]),
+              randFloat(directionMin[1], directionMax[1]),
+              randFloat(directionMin[2], directionMax[2])
+            );
+            localDirection && dir.applyQuaternion(worldQuaternion);
+            return [dir.x, dir.y, dir.z];
+          })(),
+          scale: [randSize, randSize, randSize],
+          rotation: [
+            worldRotation.x +
+            randFloat(startRotationMin[0], startRotationMax[0]),
+            worldRotation.y +
+            randFloat(startRotationMin[1], startRotationMax[1]),
+            worldRotation.z +
+            randFloat(startRotationMin[2], startRotationMax[2]),
+          ],
+          rotationSpeed: [
+            randFloat(rotationSpeedMin[0], rotationSpeedMax[0]),
+            randFloat(rotationSpeedMin[1], rotationSpeedMax[1]),
+            randFloat(rotationSpeedMin[2], rotationSpeedMax[2]),
+          ],
+          lifetime: [
+            currentTime.current,
+            randFloat(particlesLifetime[0], particlesLifetime[1]),
+          ],
+          colorStart: color,
+          colorEnd: colorEnd?.length
+            ? colorEnd[randInt(0, colorEnd.length - 1)]
+            : color,
+          speed: [randFloat(speed[0], speed[1])],
+        };
+      });
+    }, []);
+
     useImperativeHandle(forwardedRef, () => ({
       ...ref.current,
       stopEmitting,
       startEmitting,
+      emitAtPos,
     }));
-
-    const emitted = useRef(0);
-    const elapsedTime = useRef(0);
 
     useFrame(({ clock }, delta) => {
       const time = clock.getElapsedTime();
+      currentTime.current = time;
       const shouldEmit = shouldEmitRef.current;
 
       if (emitted.current < nbParticles || loop) {
