@@ -46,16 +46,18 @@ interface VFXEmitterProps {
   settings: VFXEmitterSettings;
   emitter: string;
   localDirection?: boolean;
+  autoStart?: boolean;
+
 }
 
 export interface VFXEmitterRef extends THREE.Object3D {
   startEmitting: (reset?: boolean) => void;
   stopEmitting: () => void;
-  emitAtPos: (position: THREE.Vector3, reset?: boolean) => void;
+  emitAtPos: (position: THREE.Vector3 | null, reset?: boolean) => void;
 }
 
 const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
-  ({ debug, emitter, settings = {}, localDirection, ...props }, forwardedRef) => {
+  ({ debug, emitter, settings = {}, localDirection, autoStart = true, ...props }, forwardedRef) => {
     const [
       {
         duration = 1,
@@ -87,7 +89,7 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
 
     const emit = useVFX((state) => state.emit);
 
-    const shouldEmitRef = useRef<boolean>(true);
+    const shouldEmitRef = useRef<boolean>((autoStart));
 
     const stopEmitting = useCallback(() => {
       shouldEmitRef.current = false;
@@ -101,30 +103,38 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
       shouldEmitRef.current = true;
     }, []);
     
-    const emitAtPos = useCallback((pos: Vector3, reset: boolean = false) => {
+    const emitAtPos = useCallback((pos: Vector3 | null, reset: boolean = false) => {
+      if(spawnMode !== "burst"){
+        console.error("This function is meant to be used with burst spawn mode only.");
+      }
       const rate = nbParticles - emitted.current;
       if (reset) {
         emitted.current = 0;
         elapsedTime.current = 0;
       }
-      emit(emitter, rate, () => {
-        ref.current.updateWorldMatrix(true, true);
-        const worldMatrix = ref.current.matrixWorld;
-        worldMatrix.decompose(worldPosition, worldQuaternion, worldScale);
-        worldEuler.setFromQuaternion(worldQuaternion);
-        worldRotation.setFromQuaternion(worldQuaternion);
-        
-        const emitterPos = pos;
 
+      if (!pos) {
+          ref.current.updateWorldMatrix(true, true);
+          const worldMatrix = ref.current.matrixWorld;
+          worldMatrix.decompose(worldPosition, worldQuaternion, worldScale);
+          worldEuler.setFromQuaternion(worldQuaternion);
+          worldRotation.setFromQuaternion(worldQuaternion);
+        } else {
+          ref.current.position.x = pos.x;
+          ref.current.position.y = pos.y;
+          ref.current.position.z = pos.z;
+        }
+
+      emit(emitter, rate, () => {
         const randSize = randFloat(size[0], size[1]);
         const color = colorStart[randInt(0, colorStart.length - 1)];
         return {
           position: [
-            emitterPos.x +
+            worldPosition.x +
             randFloat(startPositionMin[0], startPositionMax[0]),
-            emitterPos.y +
+            worldPosition.y +
             randFloat(startPositionMin[1], startPositionMax[1]),
-            emitterPos.z +
+            worldPosition.z +
             randFloat(startPositionMin[2], startPositionMax[2]),
           ],
           direction: (() => {

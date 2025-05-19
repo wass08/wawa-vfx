@@ -12,7 +12,7 @@ import {
   RenderMode,
 } from "./vfxs/types";
 import { Group, Vector3 } from "three";
-import { randFloat } from "three/src/math/MathUtils.js";
+import { lerp, randFloat } from "three/src/math/MathUtils.js";
 
 export const Experience = () => {
   const { component } = useControls("Component", {
@@ -40,10 +40,35 @@ export const Experience = () => {
 function Fireworks() {
   const emitter = useRef<VFXEmitterRef>(null);
   const groupRef = useRef<Group>(null);
-  
-  useFrame(() => {
-    if(emitter.current){
-    emitter.current.emitAtPos(new Vector3(10, 2, 0), true)
+  const lastShotTime = useRef<number>(0);
+  const missileRef = useRef<VFXEmitterRef>(null)
+
+  const xTarget = useRef<number>((Math.random() -.5) * 6)
+  const yTarget = useRef<number>(Math.random() * 2 + 1)
+  const zTarget = useRef<number>((Math.random() - .5) * 6);
+  useFrame((state, delta) => {
+
+    if(emitter.current && groupRef.current && missileRef.current){
+      lastShotTime.current += delta;
+      if(lastShotTime.current > 1){
+        missileRef.current.startEmitting();
+        groupRef.current.position.y = lerp(groupRef.current.position.y, yTarget.current, 2 * delta);
+        groupRef.current.position.x = lerp(groupRef.current.position.x, xTarget.current, 1 * delta);
+        groupRef.current.position.z = lerp(groupRef.current.position.z, zTarget.current, 2 * delta);
+        if(groupRef.current.position.y > yTarget.current - 1){
+          missileRef.current.stopEmitting();
+          if(groupRef.current.position.y > yTarget.current - 0.1){
+            emitter.current.emitAtPos(groupRef.current.getWorldPosition(new Vector3()), true);
+            lastShotTime.current = 0;
+            groupRef.current.position.y = -2;
+            groupRef.current.position.x = 0;
+            xTarget.current = (Math.random() -.5) * 6
+            yTarget.current = Math.random() * 2 + 1
+            zTarget.current = ((Math.random() -.5) * 6)
+          }
+        }
+      }
+      
     }
   })
   
@@ -53,39 +78,88 @@ function Fireworks() {
         name='fireworks'
         settings={{
           nbParticles: 100000,
-          intensity: 0.1,
+          intensity: 10,
           renderMode: RenderMode.StretchBillboard,
-          stretchScale: 0.1,
+          stretchScale: 1,
           fadeSize: [0, 0],
           fadeAlpha: [0, 1],
           gravity: [0, 0, 0],
           appearance: AppearanceMode.Circular,
-          easeFunction: "easeOutPower2",
+          easeFunction: "easeOutQuint",
         }}
       />
+      <VFXParticles
+        name='fireworks-missile'
+        settings={{
+          nbParticles: 10000,
+          intensity: 3,
+          renderMode: RenderMode.Billboard,
+          fadeSize: [0, 0],
+          fadeAlpha: [0, 1],
+          gravity: [0, 0, 0],
+          appearance: AppearanceMode.Circular,
+          // easeFunction: "easeInPower3",
+        }}
+      />
+      <group ref={groupRef} position-y={-3}>
+        <VFXEmitter
+          emitter="fireworks-missile"
+          // debug
+          autoStart={false}
+          ref={missileRef}
+          settings={{
+            duration: 0.0001,
+            delay: 0,
+            nbParticles: 1,
+            spawnMode: "time",
+            loop: true,
+            startPositionMin: [-.01, -.01, -.01],
+            startPositionMax: [.01, .01, .01],
+            startRotationMin: [0, 0, 0],
+            startRotationMax: [0, 0, 0],
+            particlesLifetime: [0.5, 0.8],
+            speed: [0.1, 0.2],
+            directionMin: [-1, 0, -1],
+            directionMax: [1, -1, 1],
+            rotationSpeedMin: [0, 0, 0],
+            rotationSpeedMax: [0, 0, 0],
+            colorStart: ["#FF003C",
+              "#FFA500",
+              "#FF69B4"
+            ],
+            colorEnd: ["#000000"],
+            size: [0.01, 0.04],
+          }}
+          />
+      </group>
       <VFXEmitter
         emitter="fireworks"
         ref={emitter}
-        debug
+        // debug
+        autoStart={false}
+        localDirection={true}
         settings={{
           duration: 4,
           delay: 0,
-          nbParticles: 1000,
+          nbParticles: 10000,
           spawnMode: "burst",
           loop: true,
           startPositionMin: [0, 0, 0],
           startPositionMax: [0, 0, 0],
           startRotationMin: [0, 0, 0],
           startRotationMax: [0, 0, 0],
-          particlesLifetime: [0.5, 1],
-          speed: [2, 5],
+          particlesLifetime: [2, 5],
+          speed: [0.1, 0.5],
           directionMin: [-1, -1, -1],
           directionMax: [1, 1, 1],
           rotationSpeedMin: [0, 0, 0],
           rotationSpeedMax: [0, 0, 0],
-          colorStart: ["#ffa600"],
-          // colorEnd: ["#000000"],
-          size: [0.04, 0.1],
+          colorStart: ["#FF003C",
+            "#FFA500",
+            "#FF69B4"
+          ],
+          colorEnd: ["#000000"],
+          size: [0.01, 0.02],
         }}
         />
     </>
