@@ -56,6 +56,8 @@ const MyEffect = () => {
       <VFXEmitter
         debug // Show debug visualization
         emitter="particles" // Target the particle system by name
+        autoStart={true} // default : true, choose either to start or not the emitter by default
+        localDirection={false} // default: false, When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
         settings={{
           loop: true, // Continuously emit particles (only if `spawnMode` is 'time')
           duration: 1, // Emission cycle duration in seconds
@@ -93,8 +95,6 @@ const MyEffect = () => {
           // Color at end - an array of strings for random selection
           colorEnd: ["white", "pink"],
 
-          // When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
-          useLocalDirection: true,
         }}
       />
     </>
@@ -127,15 +127,25 @@ You can now apply easing function enabling smooth transitions over the particle�
 
 ##### VFXEmitter :
 
-🔷 useLocalDirection Setting
+###### 🔷 localDirection Setting
 
 A new boolean setting:
 
 ```jsx
-  useLocalDirection?: boolean; // true | false
+  localDirection?: boolean; // true | false
 ```
 
 When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
+
+###### 🔷 autoStart Setting
+
+A new boolean setting:
+
+```jsx
+  autoStart?: boolean; // true | false
+```
+
+default is true, choose to emit particles by default, or not on VFXEmitter call.
 
 ### VFXParticles Properties
 
