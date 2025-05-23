@@ -3,6 +3,8 @@ import { useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { button, useControls } from "leva";
 import { useRef } from "react";
+import { Group, Vector3 } from "three";
+import { lerp } from "three/src/math/MathUtils.js";
 import VFXEmitter, { VFXEmitterRef } from "./vfxs/VFXEmitter";
 import VFXParticles from "./vfxs/VFXParticles";
 import {
@@ -11,8 +13,6 @@ import {
   easeFunctionList,
   RenderMode,
 } from "./vfxs/types";
-import { Group, Vector3 } from "three";
-import { lerp, randFloat } from "three/src/math/MathUtils.js";
 
 export const Experience = () => {
   const { component } = useControls("Component", {
@@ -41,41 +41,54 @@ function Fireworks() {
   const emitter = useRef<VFXEmitterRef>(null);
   const groupRef = useRef<Group>(null);
   const lastShotTime = useRef<number>(0);
-  const missileRef = useRef<VFXEmitterRef>(null)
+  const missileRef = useRef<VFXEmitterRef>(null);
 
-  const xTarget = useRef<number>((Math.random() -.5) * 6)
-  const yTarget = useRef<number>(Math.random() * 2 + 1)
-  const zTarget = useRef<number>((Math.random() - .5) * 6);
-  useFrame((state, delta) => {
-
-    if(emitter.current && groupRef.current && missileRef.current){
+  const xTarget = useRef<number>((Math.random() - 0.5) * 6);
+  const yTarget = useRef<number>(Math.random() * 2 + 1);
+  const zTarget = useRef<number>((Math.random() - 0.5) * 6);
+  useFrame((_, delta) => {
+    if (emitter.current && groupRef.current && missileRef.current) {
       lastShotTime.current += delta;
-      if(lastShotTime.current > 1){
+      if (lastShotTime.current > 1) {
         missileRef.current.startEmitting();
-        groupRef.current.position.y = lerp(groupRef.current.position.y, yTarget.current, 2 * delta);
-        groupRef.current.position.x = lerp(groupRef.current.position.x, xTarget.current, 1 * delta);
-        groupRef.current.position.z = lerp(groupRef.current.position.z, zTarget.current, 2 * delta);
-        if(groupRef.current.position.y > yTarget.current - 1){
+        groupRef.current.position.y = lerp(
+          groupRef.current.position.y,
+          yTarget.current,
+          2 * delta
+        );
+        groupRef.current.position.x = lerp(
+          groupRef.current.position.x,
+          xTarget.current,
+          1 * delta
+        );
+        groupRef.current.position.z = lerp(
+          groupRef.current.position.z,
+          zTarget.current,
+          2 * delta
+        );
+        if (groupRef.current.position.y > yTarget.current - 1) {
           missileRef.current.stopEmitting();
-          if(groupRef.current.position.y > yTarget.current - 0.1){
-            emitter.current.emitAtPos(groupRef.current.getWorldPosition(new Vector3()), true);
+          if (groupRef.current.position.y > yTarget.current - 0.1) {
+            emitter.current.emitAtPos(
+              groupRef.current.getWorldPosition(new Vector3()),
+              true
+            );
             lastShotTime.current = 0;
             groupRef.current.position.y = -2;
             groupRef.current.position.x = 0;
-            xTarget.current = (Math.random() -.5) * 6
-            yTarget.current = Math.random() * 2 + 1
-            zTarget.current = ((Math.random() -.5) * 6)
+            xTarget.current = (Math.random() - 0.5) * 6;
+            yTarget.current = Math.random() * 2 + 1;
+            zTarget.current = (Math.random() - 0.5) * 6;
           }
         }
       }
-      
     }
-  })
-  
+  });
+
   return (
     <>
       <VFXParticles
-        name='fireworks'
+        name="fireworks"
         settings={{
           nbParticles: 100000,
           intensity: 10,
@@ -89,7 +102,7 @@ function Fireworks() {
         }}
       />
       <VFXParticles
-        name='fireworks-missile'
+        name="fireworks-missile"
         settings={{
           nbParticles: 10000,
           intensity: 3,
@@ -113,8 +126,8 @@ function Fireworks() {
             nbParticles: 1,
             spawnMode: "time",
             loop: true,
-            startPositionMin: [-.01, -.01, -.01],
-            startPositionMax: [.01, .01, .01],
+            startPositionMin: [-0.01, -0.01, -0.01],
+            startPositionMax: [0.01, 0.01, 0.01],
             startRotationMin: [0, 0, 0],
             startRotationMax: [0, 0, 0],
             particlesLifetime: [0.5, 0.8],
@@ -123,14 +136,11 @@ function Fireworks() {
             directionMax: [1, -1, 1],
             rotationSpeedMin: [0, 0, 0],
             rotationSpeedMax: [0, 0, 0],
-            colorStart: ["#FF003C",
-              "#FFA500",
-              "#FF69B4"
-            ],
+            colorStart: ["#FF003C", "#FFA500", "#FF69B4"],
             colorEnd: ["#000000"],
             size: [0.01, 0.04],
           }}
-          />
+        />
       </group>
       <VFXEmitter
         emitter="fireworks"
@@ -154,16 +164,13 @@ function Fireworks() {
           directionMax: [1, 1, 1],
           rotationSpeedMin: [0, 0, 0],
           rotationSpeedMax: [0, 0, 0],
-          colorStart: ["#FF003C",
-            "#FFA500",
-            "#FF69B4"
-          ],
+          colorStart: ["#FF003C", "#FFA500", "#FF69B4"],
           colorEnd: ["#000000"],
           size: [0.01, 0.02],
         }}
-        />
+      />
     </>
-  )
+  );
 }
 
 function StretchBillboard() {
@@ -192,9 +199,7 @@ function StretchBillboard() {
     },
   });
 
-  useFrame((state, delta) => {
-    const time = state.clock.getElapsedTime();
-
+  useFrame((_, delta) => {
     if (emitterBlue.current && groupRef.current) {
       groupRef.current.rotation.z += delta * 20;
     }
@@ -216,34 +221,34 @@ function StretchBillboard() {
         }}
       />
       <group ref={groupRef}>
-        <group position={[2, 0, 0]}><VFXEmitter
-          debug
-          ref={emitterBlue}
-          emitter="sparks"
-          localDirection={true}
-          settings={{
-            duration: 0.001,
-            delay: 0,
-            nbParticles: 1,
-            spawnMode: "time",
-            loop: true,
-            startPositionMin: [0, 0, -0.2],
-            startPositionMax: [0, 0, 0.2],
-            startRotationMin: [0, 0, 0],
-            startRotationMax: [0, 0, 0],
-            particlesLifetime: [0.5, 1],
-            speed: [4, 5],
-            directionMin: [0., 1, 0],
-            directionMax: [0.5, 1, 0.5],
-            rotationSpeedMin: [0, 0, 0],
-            rotationSpeedMax: [0, 0, 0],
-            colorStart: ["#ffa600"],
-            colorEnd: ["#000000"],
-            size: [0.04, 0.1],
-          }}
-        />
-      
-        </group> 
+        <group position={[2, 0, 0]}>
+          <VFXEmitter
+            debug
+            ref={emitterBlue}
+            emitter="sparks"
+            localDirection={true}
+            settings={{
+              duration: 0.001,
+              delay: 0,
+              nbParticles: 1,
+              spawnMode: "time",
+              loop: true,
+              startPositionMin: [0, 0, -0.2],
+              startPositionMax: [0, 0, 0.2],
+              startRotationMin: [0, 0, 0],
+              startRotationMax: [0, 0, 0],
+              particlesLifetime: [0.5, 1],
+              speed: [4, 5],
+              directionMin: [0, 1, 0],
+              directionMax: [0.5, 1, 0.5],
+              rotationSpeedMin: [0, 0, 0],
+              rotationSpeedMax: [0, 0, 0],
+              colorStart: ["#ffa600"],
+              colorEnd: ["#000000"],
+              size: [0.04, 0.1],
+            }}
+          />
+        </group>
       </group>
     </>
   );
