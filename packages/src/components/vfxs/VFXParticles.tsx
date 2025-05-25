@@ -434,36 +434,81 @@ void main() {
                           finalUp * position.y;
     mvPosition = viewMatrix * vec4(vertexWorldPos, 1.0);
   #endif
-  #ifdef STRETCH_BILLBOARD_MODE
-    vec3 instancePosition = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz + offset;
-    vec3 viewDir = normalize(cameraPosition - instancePosition);
-    vec3 up = vec3(0.0, 1.0, 0.0);
-    vec3 right = normalize(cross(abs(dot(viewDir, up)) > 0.99 ? vec3(1,0,0) : up, viewDir));
-    vec3 velocity = instanceDirection * instanceSpeed * easedAge + uGravity;
-    vec3 stretchDir = normalize(velocity);
-    stretchDir.x = abs(stretchDir.x) < 0.2 ? (stretchDir.x >= 0. ? 0.2 : -.2) : stretchDir.x;
-    stretchDir.y = abs(stretchDir.y) < 0.2 ? (stretchDir.y >= 0. ? 0.2 : -.2) : stretchDir.y;
-    stretchDir.z = abs(stretchDir.z) < 0.2 ? (stretchDir.z >= 0. ? 0.2 : -.2) : stretchDir.z;
-    float stretchLength = length(velocity);
-    // stretchLength = clamp(stretchLength, 0., 1.0);
-    stretchLength *= uStretchScale;
-    float scaleX = length(instanceMatrix[0].xyz);
-    float scaleY = length(instanceMatrix[1].xyz);
-    float scaleZ = length(instanceMatrix[2].xyz);
-    float instanceScale = (scaleX + scaleY + scaleZ);
-    float width = scale * instanceScale;
-    float height = (scale + stretchLength) * instanceScale;
-    
-  
-    vec3 finalRight = right * width;
-    vec3 finalUp = normalize(stretchDir) * height * sign(dot(stretchDir, viewDir));
-    
-    vec3 vertexWorldPos = instancePosition +
-                          finalRight * position.x +
-                          finalUp * position.y;
-  
+    #ifdef STRETCH_BILLBOARD_MODE
+  vec3 particleWorldPos = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz + offset;
+
+  vec3 worldVelocity = normalizedDirection * instanceSpeed + uGravity * age;
+  float currentSpeed = length(worldVelocity);
+
+  if (currentSpeed < 0.001) {
+    vec3 instancePositionBillboard = particleWorldPos;
+
+    // Use camera's Up vector in World for a more robust billboard
+    vec3 camUpWorld = normalize(vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]));
+    vec3 eyeVecBillboard = normalize(cameraPosition - instancePositionBillboard);
+
+    vec3 bLocalX = normalize(cross(camUpWorld, eyeVecBillboard));
+
+    if (length(bLocalX) < 0.001) {
+
+      bLocalX = normalize(vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]));
+    }
+    vec3 bLocalY = normalize(cross(eyeVecBillboard, bLocalX));
+    mat3 billboardBasis = mat3(bLocalX, bLocalY, eyeVecBillboard);
+
+    float instScaleX = length(instanceMatrix[0].xyz);
+    float instScaleY = length(instanceMatrix[1].xyz);
+
+    mat3 rotatedBillboardBasis = billboardBasis * mat3(rotationMatrix);
+
+    vec3 finalRight = rotatedBillboardBasis[0] * instScaleX * scale;
+    vec3 finalUp    = rotatedBillboardBasis[1] * instScaleY * scale;
+    vec3 vertexWorldPos = instancePositionBillboard + finalRight * position.x + finalUp * position.y;
     mvPosition = viewMatrix * vec4(vertexWorldPos, 1.0);
-  #endif
+
+  } else { 
+    vec3 eyeVector = normalize(cameraPosition - particleWorldPos);
+
+    vec3 tangent = normalize(worldVelocity); 
+
+    vec3 projectedTangent = tangent - dot(tangent, eyeVector) * eyeVector;
+
+    vec3 particlePlaneUp;
+    vec3 particlePlaneRight; 
+
+    if (length(projectedTangent) < 0.001) {
+
+      particlePlaneUp = tangent;
+
+      vec3 camUpWorld = normalize(vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]));
+      particlePlaneRight = normalize(cross(particlePlaneUp, camUpWorld));
+
+      if (length(particlePlaneRight) < 0.001) {
+        vec3 camRightWorld = normalize(vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]));
+        particlePlaneRight = normalize(cross(particlePlaneUp, camRightWorld));
+      }
+    } else {
+      particlePlaneUp = normalize(projectedTangent);
+      particlePlaneRight = normalize(cross(particlePlaneUp, eyeVector));
+    }
+
+    float baseWidth  = length(instanceMatrix[0].xyz);
+    float baseLength = length(instanceMatrix[1].xyz);
+
+    float wid = baseWidth * scale;
+    float len = baseLength * scale * (1.0 + currentSpeed * uStretchScale);
+
+    float zAngle = instanceRotationSpeed.z * age;
+    mat2 spinMatrix = mat2(cos(zAngle), -sin(zAngle), sin(zAngle), cos(zAngle));
+    vec2 localSpunPos = spinMatrix * position.xy;
+
+    vec3 worldSpaceVertexOffset = particlePlaneRight * localSpunPos.x * wid +
+                                  particlePlaneUp    * localSpunPos.y * len;
+
+    vec3 finalVertexPos = particleWorldPos + worldSpaceVertexOffset;
+    mvPosition = viewMatrix * vec4(finalVertexPos, 1.0);
+  }
+#endif
 
   gl_Position = projectionMatrix * mvPosition;
 
