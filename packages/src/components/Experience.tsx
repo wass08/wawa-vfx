@@ -92,7 +92,7 @@ function Fireworks() {
         settings={{
           nbParticles: 100000,
           intensity: 10,
-          renderMode: RenderMode.StretchBillboard,
+          renderMode: RenderMode.Billboard,
           stretchScale: 1,
           fadeSize: [0, 0],
           fadeAlpha: [0, 1],
@@ -159,14 +159,14 @@ function Fireworks() {
           startRotationMin: [0, 0, 0],
           startRotationMax: [0, 0, 0],
           particlesLifetime: [2, 5],
-          speed: [0.1, 0.5],
+          speed: [1, 2],
           directionMin: [-1, -1, -1],
           directionMax: [1, 1, 1],
           rotationSpeedMin: [0, 0, 0],
           rotationSpeedMax: [0, 0, 0],
           colorStart: ["#FF003C", "#FFA500", "#FF69B4"],
           colorEnd: ["#000000"],
-          size: [0.01, 0.02],
+          size: [0.1, 0.2],
         }}
       />
     </>
