@@ -1,7 +1,7 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.0.14",
+  "version": "1.0.15",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/wawa-vfx.umd.js",
@@ -36,7 +36,6 @@
     "zustand": "^5.0.3"
   },
   "peerDependencies": {
-    "@react-three/drei": "^10.0.3",
     "@react-three/fiber": "^9.0.0",
     "react": "^19",
     "react-dom": "^19",
