@@ -1,65 +1,64 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { Vector3 } from "three";
-import { VFXEmitter, VFXParticles } from "wawa-vfx";
+import { AppearanceMode, RenderMode, VFXEmitter, VFXParticles } from "wawa-vfx";
 
 const tmpVector = new Vector3();
 
 export const StretchedBillboard = () => {
-  const emitter = useRef();
+  const emitterBlue = useRef(null);
+  const groupRef = useRef(null);
 
-  useFrame(({ clock }, delta) => {
-    if (emitter.current) {
-      const time = clock.getElapsedTime();
-      tmpVector.set(
-        Math.sin(time) * 4,
-        Math.cos(time * 2) * 6,
-        Math.sin(time * 4) * 8
-      );
-      emitter.current.position.lerp(tmpVector, delta * 2);
+  useFrame((_, delta) => {
+    if (emitterBlue.current && groupRef.current) {
+      groupRef.current.rotation.z += delta * 10;
     }
   });
   return (
     <>
       <VFXParticles
-        name="particles"
+        name="sparks"
         settings={{
-          nbParticles: 100000,
-          gravity: [0, -10, 0],
+          nbParticles: 500000,
+          intensity: 0.5,
+          renderMode: RenderMode.StretchBillboard,
+          stretchScale: 4,
           fadeSize: [0, 0],
-          fadeOpacity: [0, 0],
-          renderMode: "stretchBillboard",
-          intensity: 6,
-          stretchScale: 0.4,
+          fadeAlpha: [0, 0],
+          gravity: [0, -6, 0],
+          appearance: AppearanceMode.Circular,
+          easeFunction: "easeLinear",
         }}
       />
-
-      <group ref={emitter}>
-        <mesh>
-          <sphereGeometry args={[0.05, 16, 16]} />
-          <meshStandardMaterial
-            color="red"
-            emissive={"red"}
-            emissiveIntensity={8}
+      <group ref={groupRef}>
+        <group position={[2, 0, 0]}>
+          <VFXEmitter
+            debug
+            ref={emitterBlue}
+            emitter="sparks"
+            localDirection={true}
+            settings={{
+              duration: 0.0001,
+              delay: 0,
+              nbParticles: 1,
+              spawnMode: "time",
+              loop: true,
+              startPositionMin: [0, 0, -0.2],
+              startPositionMax: [0, 0, 0.2],
+              startRotationMin: [0, 0, 0],
+              startRotationMax: [0, 0, 0],
+              particlesLifetime: [2, 4],
+              speed: [3, 5],
+              directionMin: [0, 0.5, 0],
+              directionMax: [0.5, 1, 0],
+              rotationSpeedMin: [0, 0, 0],
+              rotationSpeedMax: [0, 0, 0],
+              colorStart: ["#ffa600"],
+              colorEnd: ["#555"],
+              size: [0.04, 0.1],
+            }}
           />
-        </mesh>
-        <VFXEmitter
-          // debug
-          emitter="particles"
-          settings={{
-            loop: true,
-            duration: 1,
-            nbParticles: 500,
-            particlesLifetime: [0.1, 1],
-            startPositionMin: [-0.1, -0.1, -0.1],
-            startPositionMax: [0.1, 0.1, 0.1],
-            directionMin: [-0.5, 0, -0.5],
-            directionMax: [0.5, 1, 0.5],
-            size: [0.01, 0.1],
-            speed: [3, 8],
-            colorStart: ["red", "pink", "mediumpurple"],
-          }}
-        />
+        </group>
       </group>
     </>
   );
