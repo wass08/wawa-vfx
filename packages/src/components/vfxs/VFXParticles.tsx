@@ -38,6 +38,7 @@ interface VFXParticlesSettings {
   gravity?: [number, number, number];
   frustumCulled?: boolean;
   appearance?: AppearanceMode;
+  radial?: boolean;
   easeFunction?: EaseFunction;
 }
 
@@ -64,6 +65,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     gravity = [0, 0, 0],
     frustumCulled = true,
     appearance = AppearanceMode.Square,
+    radial = false, // The radial modifier moves the particles toward the mesh with the velocity over lifetime
     easeFunction = "easeLinear",
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
@@ -206,6 +208,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     material.uniforms.uFadeAlpha.value = fadeAlpha;
     material.uniforms.uGravity.value = gravity;
     material.uniforms.uAppearanceMode.value = appearance;
+    material.uniforms.uIsRadial.value = radial;
     material.uniforms.uEasingFunction.value = easingIndex;
   });
 
@@ -301,6 +304,7 @@ const ParticlesMaterial = shaderMaterial(
     uFadeAlpha: [0, 1.0],
     uGravity: [0, 0, 0],
     uAppearanceMode: 0,
+    uIsRadial: false,
     alphaMap: null,
     uEasingFunction: 0,
   },
@@ -352,6 +356,7 @@ uniform vec2 uFadeSize;
 uniform vec3 uGravity;
 uniform float uStretchScale;
 uniform int uEasingFunction;
+uniform bool uIsRadial;
 
 varying vec2 vUv;
 varying vec3 vColor;
@@ -363,26 +368,33 @@ attribute vec3 instanceRotationSpeed;
 attribute vec3 instanceDirection;
 attribute vec3 instanceColor;
 attribute vec3 instanceColorEnd;
-attribute vec2 instanceLifetime; // x: startTime, y: duration
+attribute vec2 instanceLifetime;
 
 void main() {
   float startTime = instanceLifetime.x;
   float duration = instanceLifetime.y;
   float age = uTime - startTime;
-  vProgress = applyEasing(clamp(age / duration, 0.0, 1.0), uEasingFunction);
+  vProgress = applyEasing(age / duration, uEasingFunction);
   if (vProgress < 0.0 || vProgress > 1.0) {
     gl_Position = vec4(vec3(9999.0), 1.0);
     return;
   }
 
   float scale = smoothstep(0.0, uFadeSize.x, vProgress) * smoothstep(1.01, uFadeSize.y, vProgress);
-
-  vec3 normalizedDirection = length(instanceDirection) > 0.0 ? normalize(instanceDirection) : vec3(0.0);
-  vec3 gravityForce = 0.5 * uGravity * (age * age);
+  vec3 worldPos = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+  vec3 normalizedDirection = uIsRadial
+      ? normalize(-worldPos)
+      : (length(instanceDirection) > 0.0 ? normalize(instanceDirection) : vec3(0.0));
+      vec3 gravityForce = 0.5 * uGravity * (age * age);
   float easedAge = vProgress * duration;
   vec3 offset = normalizedDirection * easedAge * instanceSpeed;
   offset += gravityForce;
+  
 
+  if(uIsRadial){
+   offset = -worldPos * vProgress;
+  }
+  
   vec3 rotationSpeed = instanceRotationSpeed * age;
   mat4 rotX = rotationX(rotationSpeed.x);
   mat4 rotY = rotationY(rotationSpeed.y);
