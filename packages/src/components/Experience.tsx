@@ -17,8 +17,8 @@ export const Experience = () => {
   const { component } = useControls("Component", {
     component: {
       label: "Component",
-      options: ["Fireworks", "BaseVFX", "StretchBillboard"],
-      value: "StretchBillboard",
+      options: ["Fireworks", "BaseVFX", "StretchBillboard", "RadialVFX"],
+      value: "RadialVFX",
     },
   });
   return (
@@ -29,6 +29,7 @@ export const Experience = () => {
       {component === "BaseVFX" && <BaseVFX />}
       {component === "StretchBillboard" && <StretchBillboard />}
       {component === "Fireworks" && <Fireworks />}
+      {component === "RadialVFX" && <RadialVFX />}
       <EffectComposer>
         <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />
       </EffectComposer>
@@ -110,6 +111,7 @@ function Fireworks() {
   );
 }
 
+
 function StretchBillboard() {
   const emitterBlue = useRef<VFXEmitterRef>(null);
   const groupRef = useRef<Group>(null);
@@ -136,6 +138,104 @@ function StretchBillboard() {
     },
   });
 
+  useFrame((_, delta) => {
+    if (emitterBlue.current && groupRef.current) {
+      groupRef.current.rotation.z += delta * 10;
+    }
+  });
+  return (
+    <>
+      <VFXParticles
+        name="sparks"
+        settings={{
+          nbParticles: 500000,
+          intensity: 0.5,
+          renderMode: renderMode as RenderMode,
+          stretchScale: 4,
+          fadeSize: [0, 0],
+          fadeAlpha: [0, 0],
+          gravity: [0, -6, 0],
+          appearance: AppearanceMode.Circular,
+          easeFunction: easing as EaseFunction,
+        }}
+      />
+      <group ref={groupRef}>
+        <group position={[2, 0, 0]}>
+          <VFXEmitter
+            debug
+            ref={emitterBlue}
+            emitter="sparks"
+            localDirection={true}
+            settings={{
+              duration: 0.0001,
+              delay: 0,
+              nbParticles: 1,
+              spawnMode: "time",
+              loop: true,
+              startPositionMin: [0, 0, -0.2],
+              startPositionMax: [0, 0, 0.2],
+              startRotationMin: [0, 0, 0],
+              startRotationMax: [0, 0, 0],
+              particlesLifetime: [2, 4],
+              speed: [4, 5],
+              directionMin: [0, 1, 0],
+              directionMax: [0.5, 1, 0.],
+              rotationSpeedMin: [0, 0, 0],
+              rotationSpeedMax: [0, 0, 0],
+              colorStart: ["#ffa600"],
+              colorEnd: ["#000000"],
+              size: [0.04, 0.1],
+            }}
+          />
+        </group>
+      </group>
+    </>
+  );
+}
+
+
+function RadialVFX() {
+  const emitterBlue = useRef<VFXEmitterRef>(null);
+  const groupRef = useRef<Group>(null);
+
+  const { easing, renderMode } = useControls("Emitter External Controls", {
+    start: button(() => {
+      emitterBlue.current?.startEmitting();
+    }),
+    startWithReset: button(() => {
+      emitterBlue.current?.startEmitting(true);
+    }),
+    stop: button(() => {
+      emitterBlue.current?.stopEmitting();
+    }),
+    easing: {
+      label: "Easing",
+      options: easeFunctionList,
+      value: "easeLinear",
+    },
+    renderMode: {
+      label: "renderMode",
+      options: ["mesh", "billboard", "stretchBillboard"],
+      value: "stretchBillboard",
+    },
+  });
+
+  useFrame(({ pointer, camera }) => {
+
+    if (!emitterBlue.current) return;
+
+
+    const ndc = new Vector3(pointer.x, pointer.y, 0);
+
+    ndc.unproject(camera);
+
+    const dir = ndc.sub(camera.position).normalize();
+
+    const distance = (0 - camera.position.z) / dir.z; 
+    const position = camera.position.clone().add(dir.multiplyScalar(distance));
+
+    emitterBlue.current.position.copy(position);
+  });
   return (
     <>
       <VFXParticles

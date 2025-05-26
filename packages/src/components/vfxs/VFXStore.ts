@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 interface EmitCallbackSettings {
+  emitterPos: [number, number, number];
   position: [number, number, number];
   direction: [number, number, number];
   scale: [number, number, number];

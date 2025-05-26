@@ -141,6 +141,11 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
           const randSize = randFloat(size[0], size[1]);
           const color = colorStart[randInt(0, colorStart.length - 1)];
           return {
+            emitterPos : [
+                worldPosition.x,
+                worldPosition.y,
+                worldPosition.z
+              ],
             position: [
               worldPosition.x +
                 randFloat(startPositionMin[0], startPositionMax[0]),
@@ -225,6 +230,11 @@ const VFXEmitter = forwardRef<VFXEmitterRef, VFXEmitterProps>(
             const randSize = randFloat(size[0], size[1]);
             const color = colorStart[randInt(0, colorStart.length - 1)];
             return {
+              emitterPos : [
+                worldPosition.x,
+                worldPosition.y,
+                worldPosition.z
+              ],
               position: [
                 worldPosition.x +
                   randFloat(startPositionMin[0], startPositionMax[0]),

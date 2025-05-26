@@ -112,6 +112,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
   const lastCursor = useRef(0);
   const needsUpdate = useRef(false);
 
+  const emitterPosRef = useRef(new Vector3());
   const emit = (count: number, setup: EmitCallbackSettingsFn) => {
     const instanceColor = mesh.current.geometry.getAttribute(
       "instanceColor"
@@ -140,6 +141,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
         scale,
         rotation,
         rotationSpeed,
+        emitterPos,
         position,
         direction,
         lifetime,
@@ -147,7 +149,9 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
         colorEnd,
         speed,
       } = setup();
-
+      emitterPosRef.current.x = emitterPos[0];
+      emitterPosRef.current.y = emitterPos[1];
+      emitterPosRef.current.z = emitterPos[2];
       tmpPosition.set(...position);
       tmpRotationEuler.set(...rotation);
       if (renderMode === "billboard" || renderMode === "stretchBillboard") {
@@ -210,6 +214,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     material.uniforms.uAppearanceMode.value = appearance;
     material.uniforms.uIsRadial.value = radial;
     material.uniforms.uEasingFunction.value = easingIndex;
+    material.uniforms.uEmitterPos.value = emitterPosRef.current;
   });
 
   const registerEmitter = useVFX((state) => state.registerEmitter);
@@ -305,6 +310,7 @@ const ParticlesMaterial = shaderMaterial(
     uGravity: [0, 0, 0],
     uAppearanceMode: 0,
     uIsRadial: false,
+    uEmitterPos: new Vector3(),
     alphaMap: null,
     uEasingFunction: 0,
   },
@@ -357,6 +363,7 @@ uniform vec3 uGravity;
 uniform float uStretchScale;
 uniform int uEasingFunction;
 uniform bool uIsRadial;
+uniform vec3 uEmitterPos;
 
 varying vec2 vUv;
 varying vec3 vColor;
@@ -382,9 +389,10 @@ void main() {
 
   float scale = smoothstep(0.0, uFadeSize.x, vProgress) * smoothstep(1.01, uFadeSize.y, vProgress);
   vec3 worldPos = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-  vec3 normalizedDirection = uIsRadial
-      ? normalize(-worldPos)
-      : (length(instanceDirection) > 0.0 ? normalize(instanceDirection) : vec3(0.0));
+    vec3 toEmitter = uEmitterPos - worldPos;
+vec3 normalizedDirection = uIsRadial
+    ? normalize(toEmitter)
+    : (length(instanceDirection) > 0.0 ? normalize(instanceDirection) : vec3(0.0));
       vec3 gravityForce = 0.5 * uGravity * (age * age);
   float easedAge = vProgress * duration;
   vec3 offset = normalizedDirection * easedAge * instanceSpeed;
@@ -392,7 +400,7 @@ void main() {
   
 
   if(uIsRadial){
-   offset = -worldPos * vProgress;
+   offset = toEmitter * vProgress;
   }
   
   vec3 rotationSpeed = instanceRotationSpeed * age;
