@@ -1,9 +1,9 @@
-import { Environment, OrbitControls, Stats } from "@react-three/drei";
+import { Environment, OrbitControls, Stats, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { button, useControls } from "leva";
 import { useRef } from "react";
-import { Group, Vector3 } from "three";
+import { DoubleSide, Group, Vector3 } from "three";
 import VFXEmitter, { VFXEmitterRef } from "./vfxs/VFXEmitter";
 import VFXParticles from "./vfxs/VFXParticles";
 import {
@@ -12,6 +12,7 @@ import {
   easeFunctionList,
   RenderMode,
 } from "./vfxs/types";
+import { lerp } from "three/src/math/MathUtils.js";
 
 export const Experience = () => {
   const { component } = useControls("Component", {
@@ -197,6 +198,12 @@ function StretchBillboard() {
 function RadialVFX() {
   const emitterBlue = useRef<VFXEmitterRef>(null);
   const groupRef = useRef<Group>(null);
+  const materialRef = useRef(null)
+  const sphereRef = useRef(null);
+  const emitter2 = useRef(null);
+  const emitter3 = useRef(null);
+  const cylinderMaterialRef = useRef(null);
+  const cylinderRef = useRef(null);
 
   const { easing, renderMode } = useControls("Emitter External Controls", {
     start: button(() => {
@@ -219,22 +226,120 @@ function RadialVFX() {
       value: "stretchBillboard",
     },
   });
+  
+  const vertexShader = `
+    varying vec3 vPosition;
+    varying vec2 vUv;
+    uniform float time;
+    
+    void main() {
+      vUv = uv;
+      vPosition = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
+    }
+  `;
+  
+  const fragmentShader = `
+    varying vec3 vPosition;
+    varying vec2 vUv;
+    uniform float time;
+    uniform sampler2D noiseTexture;
+    vec2 hash(vec2 p) {
+      p = vec2(
+        dot(p, vec2(127.1, 311.7)),
+        dot(p, vec2(269.5, 183.3))
+      );
+      return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
+    }
 
-  useFrame(({ pointer, camera }) => {
+    float noise(in vec2 p) {
+      const float K1 = 0.366025404;
+      const float K2 = 0.211324865;
+    
+      vec2 i = floor(p + (p.x + p.y) * K1);
+      vec2 a = p - i + (i.x + i.y) * K2;
+      vec2 o = (a.x > a.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+      vec2 b = a - o + K2;
+      vec2 c = a - 1.0 + 2.0 * K2;
+    
+      vec3 h = max(0.5 - vec3(dot(a,a), dot(b,b), dot(c,c)), 0.0);
+      vec3 n = h * h * h * h * vec3(
+        dot(a, hash(i + 0.0)),
+        dot(b, hash(i + o)),
+        dot(c, hash(i + 1.0))
+      );
+    
+      return dot(n, vec3(70.0));
+    }
 
+    void main() {
+      vec2 noiseUv = fract(vec2(vUv.x, vUv.y));
+      float n = texture2D(noiseTexture, noiseUv * 1.0 - (time * 0.1)).r;
+    
+      float threshold = time * 3.; 
+    
+      float dissolve = smoothstep(threshold - 1.0, threshold, n);
+    
+
+    
+      vec3 baseColor = vec3(1.0);
+      vec3 edgeColor = vec3(1.0, 0.3, 0.0) * 5.0 + time * 50.;
+    
+      vec3 finalColor = baseColor;
+    
+      float alpha = dissolve;
+      if (alpha < 0.001) discard;
+    
+      gl_FragColor = vec4(finalColor + edgeColor * alpha, alpha);
+    }
+  `;
+
+  const noise = useTexture('./noise.png');
+  useFrame(({ pointer, camera, clock}, delta) => {
+    const time = clock.getElapsedTime();
     if (!emitterBlue.current) return;
+    
+    if(materialRef.current && sphereRef.current){
+            // materialRef.current.uniforms.time.value += delta
 
+      // materialRef.current.uniforms.time.value += delta;
+      // 
+      if(time > 6){
+        const lerpingValue = lerp(sphereRef.current.scale.x, 2, 12 * delta);
+        const cylinderLerpingValue = lerp(cylinderRef.current.scale.x, 6, 2 * delta);
 
-    const ndc = new Vector3(pointer.x, pointer.y, 0);
+        sphereRef.current.scale.x = lerpingValue;
+        sphereRef.current.scale.y = lerpingValue;
+        sphereRef.current.scale.z = lerpingValue;
+        materialRef.current.uniforms.time.value += delta
+        cylinderMaterialRef.current.uniforms.time.value += delta * 0.8;
+        cylinderRef.current.scale.x = cylinderLerpingValue ;
+        cylinderRef.current.scale.y = cylinderLerpingValue ;
+        cylinderRef.current.scale.z = cylinderLerpingValue ; 
+        emitter2.current.startEmitting();
+        emitter3.current.startEmitting();
 
-    ndc.unproject(camera);
+        
+      }
+      if(time > 5 && time < 6) {
+        const lerpingValue = lerp(sphereRef.current.scale.x, 0, 12 * delta);
+        sphereRef.current.scale.x = lerpingValue;
+        sphereRef.current.scale.y = lerpingValue;
+        sphereRef.current.scale.z = lerpingValue;
+        // emitterBlue.current.stopEmitting();
+      }
+      if(time > 1 && time < 5){
+        console.log(sphereRef.current.scale)
+        const increase = delta * 0.1 + Math.sin(time * 99) * 0.1
+        sphereRef.current.scale.x += increase;
+        sphereRef.current.scale.y += increase;
+        sphereRef.current.scale.z += increase;
+        if(time > 4.4){
+          emitterBlue.current.stopEmitting();
+        }
 
-    const dir = ndc.sub(camera.position).normalize();
-
-    const distance = (0 - camera.position.z) / dir.z; 
-    const position = camera.position.clone().add(dir.multiplyScalar(distance));
-
-    emitterBlue.current.position.copy(position);
+      }
+    }
   });
   return (
     <>
@@ -250,27 +355,93 @@ function RadialVFX() {
           gravity: [0, 0, 0],
           appearance: AppearanceMode.Circular,
           radial: true,
-          easeFunction: easing as EaseFunction,
+          easeFunction: "easeInPower2",
+        }}
+      />
+      <VFXParticles
+        name="explode"
+        settings={{
+          nbParticles: 150,
+          intensity: 30,
+          renderMode: renderMode as RenderMode,
+          stretchScale: 2,
+          fadeSize: [1, 1],
+          fadeAlpha: [0, 0],
+          gravity: [0, 0, 0],
+          appearance: AppearanceMode.Circular,
+          // easeFunction: "easeOutPower4",
+        }}
+      />
+      <VFXParticles
+        name="explode-2"
+        settings={{
+          nbParticles: 150,
+          intensity: 30,
+          renderMode: RenderMode.Billboard,
+          fadeSize: [1, 1],
+          fadeAlpha: [0, 0],
+          gravity: [0, 0, 0],
+          appearance: AppearanceMode.Circular,
+          // easeFunction: "easeOutPower4",
+        }}
+      />
+      <VFXParticles
+        name="test"
+        geometry={<octahedronGeometry args={[0.1, 2]} />}
+        settings={{
+          nbParticles: 15,
+          intensity: 1,
+          renderMode: RenderMode.Mesh,
+          stretchScale: 2,
+          fadeSize: [1, 1],
+          fadeAlpha: [0, 0],
+          gravity: [0, 0, 0],
+          // appearance: AppearanceMode.Circular,
+          // easeFunction: "easeOu",
         }}
       />
       <group ref={groupRef}>
         <group position={[0, 0, 0]}>
+          <mesh rotation={[1, 0, -0.1]} ref={cylinderRef} scale={[0, 0, 0]}>
+            <cylinderGeometry args={[1, 1, 0.005, 128, 128, true]} />
+          <shaderMaterial 
+            ref={cylinderMaterialRef}
+              vertexShader={vertexShader}
+              fragmentShader={fragmentShader}
+              uniforms={{
+                time: {value : 0},
+                noiseTexture: {value: noise}
+              }}
+              side={DoubleSide}
+            />          </mesh>
+          <mesh ref={sphereRef} scale={[0, 0, 0]}>
+            <sphereGeometry args={[1., 32, 32]}/>
+            <shaderMaterial 
+            ref={materialRef}
+              vertexShader={vertexShader}
+              fragmentShader={fragmentShader}
+              uniforms={{
+                time: {value : 0},
+                noiseTexture: {value: noise}
+              }}
+            />
+          </mesh>
           <VFXEmitter
-            debug
+            // debug
             ref={emitterBlue}
             emitter="sparks"
             localDirection={true}
             settings={{
-              duration: 0.001,
+              duration: 0.01,
               delay: 0,
               nbParticles: 1,
               spawnMode: "time",
               loop: true,
-              startPositionMin: [-5, -5, 0],
-              startPositionMax: [5, 5, 0],
+              startPositionMin: [-2, -2, 0],
+              startPositionMax: [2, 2, 0],
               startRotationMin: [0, 0, 0],
               startRotationMax: [0, 0, 0],
-              particlesLifetime: [1, 2],
+              particlesLifetime: [0.5, 1],
               speed: [0, 1],
               directionMin: [0, 0, 0],
               directionMax: [0, 0, 0],
@@ -281,6 +452,63 @@ function RadialVFX() {
               size: [0.04, 0.1],
             }}
           />
+          <VFXEmitter
+            // debug
+            // ref={emitterBlue}
+            ref={emitter2}
+            emitter="explode"
+            localDirection={true}
+            autoStart={false}
+            settings={{
+              duration: 0.01,
+              delay: 0,
+              nbParticles: 150,
+              spawnMode: "burst",
+              loop: false,
+              startPositionMin: [0, 0, 0],
+              startPositionMax: [0, 0, 0],
+              startRotationMin: [0, 0, 0],
+              startRotationMax: [0, 0, 0],
+              particlesLifetime: [0.7, 1.2],
+              speed: [4, 8],
+              directionMin: [-2, -2, -2],
+              directionMax: [2,2, 2],
+              rotationSpeedMin: [0, 0, 0],
+              rotationSpeedMax: [0, 0, 0],
+              colorStart: ["#ff4400"],
+              colorEnd: ["#ffffff"],
+              size: [0.001, 0.1],
+            }}
+          />
+                    <VFXEmitter
+            // debug
+            // ref={emitterBlue}
+            ref={emitter3}
+            emitter="explode-2"
+            localDirection={true}
+            autoStart={false}
+            settings={{
+              duration: 0.01,
+              delay: 0,
+              nbParticles: 150,
+              spawnMode: "burst",
+              loop: false,
+              startPositionMin: [0, 0, 0],
+              startPositionMax: [0, 0, 0],
+              startRotationMin: [0, 0, 0],
+              startRotationMax: [0, 0, 0],
+              particlesLifetime: [0.7, 1.2],
+              speed: [4, 8],
+              directionMin: [-2, -2, -2],
+              directionMax: [2,2, 2],
+              rotationSpeedMin: [0, 0, 0],
+              rotationSpeedMax: [0, 0, 0],
+              colorStart: ["#ff4400"],
+              colorEnd: ["#ffffff"],
+              size: [0.001, 0.1],
+            }}
+          />
+         
         </group>
       </group>
     </>
