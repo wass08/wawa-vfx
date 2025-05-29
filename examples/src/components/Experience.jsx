@@ -6,6 +6,7 @@ import { Basic } from "./demo-components/Basic";
 import { CustomGeometry } from "./demo-components/CustomGeometry";
 import { Emitter } from "./demo-components/Emitter";
 import { MultipleEmitters } from "./demo-components/MultipleEmitters";
+import { Reverse } from "./demo-components/Reverse";
 import { StretchedBillboard } from "./demo-components/StretchedBillboard";
 import { GradientSky } from "./GradientSky";
 
@@ -49,6 +50,7 @@ export const Experience = () => {
 
       {currentHash === "" && <Basic />}
       {currentHash === "emitter" && <Emitter />}
+      {currentHash === "reverse" && <Reverse />}
       {currentHash === "multiple-emitters" && <MultipleEmitters />}
       {currentHash === "alpha-map" && <AlphaMap />}
       {currentHash === "custom-geometry" && <CustomGeometry />}

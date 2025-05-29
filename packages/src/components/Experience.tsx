@@ -38,8 +38,6 @@ export const Experience = () => {
 };
 
 function Energy() {
-  const emitterBlue = useRef<VFXEmitterRef>(null);
-
   return (
     <>
       <VFXParticles

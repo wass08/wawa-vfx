@@ -6,6 +6,10 @@ const examples = [
     href: "#",
   },
   {
+    label: "Reverse emissions",
+    href: "#reverse",
+  },
+  {
     label: "Follow emitter",
     href: "#emitter",
   },
