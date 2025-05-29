@@ -369,7 +369,12 @@ void main() {
   float startTime = instanceLifetime.x;
   float duration = instanceLifetime.y;
   float age = uTime - startTime;
-  vProgress = applyEasing(clamp(age / duration, 0.0, 1.0), uEasingFunction);
+
+  // Adjust age based on instanceSpeed direction
+  age = instanceSpeed < 0.0 ? duration - (uTime - startTime) : uTime - startTime;
+  float progress = clamp(age / duration, 0.0, 1.0);
+  vProgress = applyEasing(progress, uEasingFunction);
+
   if (vProgress < 0.0 || vProgress > 1.0) {
     gl_Position = vec4(vec3(9999.0), 1.0);
     return;

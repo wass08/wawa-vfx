@@ -17,8 +17,8 @@ export const Experience = () => {
   const { component } = useControls("Component", {
     component: {
       label: "Component",
-      options: ["Fireworks", "BaseVFX", "StretchBillboard"],
-      value: "StretchBillboard",
+      options: ["Fireworks", "BaseVFX", "StretchBillboard", "Energy"],
+      value: "Energy",
     },
   });
   return (
@@ -29,12 +29,54 @@ export const Experience = () => {
       {component === "BaseVFX" && <BaseVFX />}
       {component === "StretchBillboard" && <StretchBillboard />}
       {component === "Fireworks" && <Fireworks />}
+      {component === "Energy" && <Energy />}
       <EffectComposer>
         <Bloom intensity={1.2} luminanceThreshold={1} mipmapBlur />
       </EffectComposer>
     </>
   );
 };
+
+function Energy() {
+  const emitterBlue = useRef<VFXEmitterRef>(null);
+
+  return (
+    <>
+      <VFXParticles
+        name="sparks"
+        settings={{
+          nbParticles: 100000,
+          intensity: 1.5,
+          renderMode: RenderMode.Billboard,
+          fadeSize: [0, 0],
+          gravity: [0, -10, 0],
+        }}
+      />
+      <VFXEmitter
+        debug
+        emitter="sparks"
+        settings={{
+          duration: 4,
+          delay: 0,
+          nbParticles: 5000,
+          spawnMode: "time",
+          loop: true,
+          startPositionMin: [0, 0, 0],
+          startPositionMax: [0, 0, 0],
+          startRotationMin: [0, 0, 0],
+          startRotationMax: [0, 0, 0],
+          particlesLifetime: [0.1, 1],
+          speed: [-1, -5],
+          directionMin: [-1, -1, -1],
+          directionMax: [1, 1, 1],
+          colorStart: ["#50ff7c"],
+          colorEnd: ["#ffffff"],
+          size: [0.1, 0.3],
+        }}
+      />
+    </>
+  );
+}
 
 function Fireworks() {
   const emitter = useRef<VFXEmitterRef>(null);
@@ -47,18 +89,18 @@ function Fireworks() {
   useFrame((_, delta) => {
     if (emitter.current) {
       lastShotTime.current += delta;
-      if (lastShotTime.current > (Math.random() * 2) + 0.5) {
-            emitter.current.emitAtPos(
-              new Vector3(xTarget.current, yTarget.current, zTarget.current),
-              true
-            );
-            lastShotTime.current = 0;
+      if (lastShotTime.current > Math.random() * 2 + 0.5) {
+        emitter.current.emitAtPos(
+          new Vector3(xTarget.current, yTarget.current, zTarget.current),
+          true
+        );
+        lastShotTime.current = 0;
 
-            xTarget.current = (Math.random() - 0.5) * 6;
-            yTarget.current = Math.random() * 2 + 1;
-            zTarget.current = (Math.random() - 0.5) * 6;
-          }
-        }
+        xTarget.current = (Math.random() - 0.5) * 6;
+        yTarget.current = Math.random() * 2 + 1;
+        zTarget.current = (Math.random() - 0.5) * 6;
+      }
+    }
   });
 
   return (
@@ -77,7 +119,6 @@ function Fireworks() {
           easeFunction: "easeOutQuint",
         }}
       />
-
 
       <VFXEmitter
         emitter="fireworks"
@@ -177,7 +218,7 @@ function StretchBillboard() {
               particlesLifetime: [2, 4],
               speed: [4, 5],
               directionMin: [0, 1, 0],
-              directionMax: [0.5, 1, 0.],
+              directionMax: [0.5, 1, 0],
               rotationSpeedMin: [0, 0, 0],
               rotationSpeedMax: [0, 0, 0],
               colorStart: ["#ffa600"],
