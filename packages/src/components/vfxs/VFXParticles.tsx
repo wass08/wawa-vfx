@@ -3,7 +3,6 @@ import { extend, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import {
-  AdditiveBlending,
   Color,
   DynamicDrawUsage,
   Euler,
@@ -16,6 +15,7 @@ import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
 import { easings } from "./easings";
 import {
   AppearanceMode,
+  BlendingMode,
   EaseFunction,
   easeFunctionList,
   RenderMode,
@@ -39,6 +39,7 @@ interface VFXParticlesSettings {
   frustumCulled?: boolean;
   appearance?: AppearanceMode;
   easeFunction?: EaseFunction;
+  blendingMode?: BlendingMode;
 }
 
 interface VFXParticlesProps {
@@ -65,6 +66,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     frustumCulled = true,
     appearance = AppearanceMode.Square,
     easeFunction = "easeLinear",
+    blendingMode = BlendingMode.AdditiveBlending,
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
@@ -207,6 +209,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     material.uniforms.uGravity.value = gravity;
     material.uniforms.uAppearanceMode.value = appearance;
     material.uniforms.uEasingFunction.value = easingIndex;
+    material.uniforms.uBlendingMode.value = blendingMode;
   });
 
   const registerEmitter = useVFX((state) => state.registerEmitter);
@@ -235,7 +238,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
       >
         {geometry}
         <particlesMaterial
-          blending={AdditiveBlending}
+          blending={blendingMode}
           defines={{
             STRETCH_BILLBOARD_MODE: renderMode === "stretchBillboard",
             BILLBOARD_MODE: renderMode === "billboard",
@@ -303,6 +306,7 @@ const ParticlesMaterial = shaderMaterial(
     uAppearanceMode: 0,
     alphaMap: null,
     uEasingFunction: 0,
+    uBlendingMode: 0,
   },
   /* glsl */ `
 ${easings}
@@ -352,6 +356,7 @@ uniform vec2 uFadeSize;
 uniform vec3 uGravity;
 uniform float uStretchScale;
 uniform int uEasingFunction;
+uniform int uBlendingMode;
 
 varying vec2 vUv;
 varying vec3 vColor;
