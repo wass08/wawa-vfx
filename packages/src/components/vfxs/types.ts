@@ -127,12 +127,3 @@ export const easeFunctionList: EaseFunction[] = [
   "easeOutBounce",
   "easeInOutBounce",
 ];
-
-export enum BlendingMode {
-  NoBlending = 0,
-  NormalBlending = 1, 
-  AdditiveBlending = 2,
-  SubtractiveBlending = 3,
-  MultiplyBlending = 4,
-  CustomBlending = 5,
-}

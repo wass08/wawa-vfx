@@ -10,12 +10,13 @@ import {
   PlaneGeometry,
   Quaternion,
   Vector3,
+  Blending,
+  AdditiveBlending,
 } from "three";
 import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
 import { easings } from "./easings";
 import {
   AppearanceMode,
-  BlendingMode,
   EaseFunction,
   easeFunctionList,
   RenderMode,
@@ -39,7 +40,7 @@ interface VFXParticlesSettings {
   frustumCulled?: boolean;
   appearance?: AppearanceMode;
   easeFunction?: EaseFunction;
-  blendingMode?: BlendingMode;
+  blendingMode?: Blending;
 }
 
 interface VFXParticlesProps {
@@ -66,7 +67,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     frustumCulled = true,
     appearance = AppearanceMode.Square,
     easeFunction = "easeLinear",
-    blendingMode = BlendingMode.AdditiveBlending,
+    blendingMode = AdditiveBlending,
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
@@ -209,7 +210,6 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     material.uniforms.uGravity.value = gravity;
     material.uniforms.uAppearanceMode.value = appearance;
     material.uniforms.uEasingFunction.value = easingIndex;
-    material.uniforms.uBlendingMode.value = blendingMode;
   });
 
   const registerEmitter = useVFX((state) => state.registerEmitter);
@@ -306,7 +306,6 @@ const ParticlesMaterial = shaderMaterial(
     uAppearanceMode: 0,
     alphaMap: null,
     uEasingFunction: 0,
-    uBlendingMode: 0,
   },
   /* glsl */ `
 ${easings}
@@ -356,7 +355,6 @@ uniform vec2 uFadeSize;
 uniform vec3 uGravity;
 uniform float uStretchScale;
 uniform int uEasingFunction;
-uniform int uBlendingMode;
 
 varying vec2 vUv;
 varying vec3 vColor;
