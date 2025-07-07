@@ -3,7 +3,6 @@ import { extend, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import {
-  AdditiveBlending,
   Color,
   DynamicDrawUsage,
   Euler,
@@ -11,6 +10,8 @@ import {
   PlaneGeometry,
   Quaternion,
   Vector3,
+  Blending,
+  AdditiveBlending,
 } from "three";
 import { EmitCallbackSettingsFn, useVFX } from "./VFXStore";
 import { easings } from "./easings";
@@ -39,6 +40,7 @@ interface VFXParticlesSettings {
   frustumCulled?: boolean;
   appearance?: AppearanceMode;
   easeFunction?: EaseFunction;
+  blendingMode?: Blending;
 }
 
 interface VFXParticlesProps {
@@ -65,6 +67,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     frustumCulled = true,
     appearance = AppearanceMode.Square,
     easeFunction = "easeLinear",
+    blendingMode = AdditiveBlending,
   } = settings;
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.5, 0.5), []);
@@ -235,7 +238,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
       >
         {geometry}
         <particlesMaterial
-          blending={AdditiveBlending}
+          blending={blendingMode}
           defines={{
             STRETCH_BILLBOARD_MODE: renderMode === "stretchBillboard",
             BILLBOARD_MODE: renderMode === "billboard",
