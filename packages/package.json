@@ -1,7 +1,7 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/wawa-vfx.umd.js",
@@ -19,9 +19,16 @@
   ],
   "description": "A simple and easy-to-use library for creating visual effects in React Three Fiber.",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/wawa-vfx.es.js",
-    "require": "./dist/wawa-vfx.umd.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/wawa-vfx.es.js",
+      "require": "./dist/wawa-vfx.umd.js"
+    },
+    "./vanilla": {
+      "types": "./dist/vanilla.d.ts",
+      "import": "./dist/vanilla.es.js",
+      "require": "./dist/vanilla.umd.js"
+    }
   },
   "files": [
     "dist"
@@ -31,30 +38,33 @@
     "build": "cp ../README.md ./ && vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "leva": "^0.10.0",
-    "zustand": "^5.0.3"
-  },
   "peerDependencies": {
     "@react-three/fiber": "^9.0.0",
+    "leva": "^0.10.0",
     "react": "^19",
     "react-dom": "^19",
-    "three": ">=0.159"
+    "three": ">=0.159",
+    "zustand": "^5.0.0"
+  },
+  "peerDependenciesOptional": {
+    "leva": true
   },
   "devDependencies": {
     "@react-three/drei": "^10.0.3",
     "@react-three/fiber": "^9.0.4",
     "@react-three/postprocessing": "^3.0.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "three": "^0.174.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@types/three": "^0.174.0",
     "@vitejs/plugin-react": "^4.3.4",
     "globals": "^15.15.0",
+    "leva": "^0.10.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.174.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
-    "vite-plugin-dts": "^4.5.3"
+    "vite-plugin-dts": "^4.5.3",
+    "zustand": "^5.0.3"
   }
 }
