@@ -308,6 +308,11 @@ postcss@^8.5.6:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
+postprocessing@^6.37.7:
+  version "6.37.7"
+  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.37.7.tgz#5e6948c9b34cba9f9bf8f3d398c4b9baedcac491"
+  integrity sha512-3mXzCyhHQvw6cMQKzvHUzQVsy21yC3PZMIeH7KUjx+EVqLWRFPnARh4DEnnFJ+tE08mmIHrrN7UtxVR1Gxbokw==
+
 rollup@^4.43.0:
   version "4.50.0"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-4.50.0.tgz#6f237f598b7163ede33ce827af8534c929aaa186"
