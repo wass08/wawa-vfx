@@ -1,11 +1,11 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.1.1",
+  "version": "1.1.2",
   "license": "MIT",
   "types": "dist/index.d.ts",
-  "main": "dist/wawa-vfx.umd.js",
-  "module": "dist/wawa-vfx.es.js",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
   "keywords": [
     "react",
     "three",
@@ -21,8 +21,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/wawa-vfx.es.js",
-      "require": "./dist/wawa-vfx.umd.js"
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js"
     },
     "./vanilla": {
       "types": "./dist/vanilla.d.ts",
@@ -35,7 +35,9 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "cp ../README.md ./ && vite build",
+    "build": "cp ../README.md ./ && vite build && vite build --config vite.vanilla.config.js",
+    "build:react": "vite build",
+    "build:vanilla": "vite build --config vite.vanilla.config.js",
     "preview": "vite preview"
   },
   "peerDependencies": {
