@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { VFXParticlesCore, VFXParticlesSettings } from "./core";
 import { AppearanceMode, RenderMode } from "./types";
@@ -21,7 +21,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
   geometry,
 }) => {
   const particlesCoreRef = useRef<VFXParticlesCore | null>(null);
-  const meshRef = useRef<THREE.InstancedMesh>(null!);
+  const [mesh, setMesh] = useState<THREE.InstancedMesh | null>(null);
 
   useEffect(() => {
     if (!particlesCoreRef.current) {
@@ -41,16 +41,17 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
         bufferGeometry
       );
 
-      meshRef.current = particlesCoreRef.current.getMesh();
+      setMesh(particlesCoreRef.current.getMesh());
     }
 
     return () => {
       if (particlesCoreRef.current) {
         particlesCoreRef.current.dispose();
         particlesCoreRef.current = null;
+        setMesh(null);
       }
     };
-  }, []);
+  }, [name, alphaMap]);
 
   useEffect(() => {
     if (particlesCoreRef.current) {
@@ -64,7 +65,7 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
     }
   });
 
-  return <>{meshRef.current && <primitive object={meshRef.current} />}</>;
+  return mesh ? <primitive object={mesh} /> : null;
 };
 
 export default VFXParticles;

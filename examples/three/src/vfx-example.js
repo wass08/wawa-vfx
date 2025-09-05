@@ -2,9 +2,9 @@ import * as THREE from "three";
 import {
   AppearanceMode,
   RenderMode,
-  VFXEmitterCore,
-  VFXParticlesCore,
-} from "wawa-vfx";
+  VFXEmitter,
+  VFXParticles,
+} from "wawa-vfx/vanilla";
 
 export function setupVFXExample(scene) {
   // Create particles system
@@ -20,7 +20,7 @@ export function setupVFXExample(scene) {
     blendingMode: THREE.AdditiveBlending,
   };
 
-  const particles = new VFXParticlesCore("mainParticles", particlesSettings);
+  const particles = new VFXParticles("mainParticles", particlesSettings);
 
   // Add particles mesh to scene
   scene.add(particles.getMesh());
@@ -43,7 +43,7 @@ export function setupVFXExample(scene) {
     directionMax: [1, 2, 1],
   };
 
-  const emitter = new VFXEmitterCore("mainParticles", emitterSettings);
+  const emitter = new VFXEmitter("mainParticles", emitterSettings);
 
   // Position the emitter
   emitter.position.set(0, 0, 0);

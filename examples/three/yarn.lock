@@ -374,3 +374,8 @@ vite@^7.1.2:
     tinyglobby "^0.2.14"
   optionalDependencies:
     fsevents "~2.3.3"
+
+wawa-vfx@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/wawa-vfx/-/wawa-vfx-1.1.4.tgz#621989dd2e522688a9283710e22056c2f13aaa01"
+  integrity sha512-tsKw+FdQMmvnVTqAuW8kp4I18/cdkQjowHL4AwVvW0uFCzxse1cJUCbi9NTS7a0yQjRxrFpUzQEgamnUqCHn1Q==

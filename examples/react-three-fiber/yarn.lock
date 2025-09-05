@@ -1687,13 +1687,10 @@ vite@^6.2.0:
   optionalDependencies:
     fsevents "~2.3.3"
 
-wawa-vfx@^1.0.16:
-  version "1.0.16"
-  resolved "https://registry.yarnpkg.com/wawa-vfx/-/wawa-vfx-1.0.16.tgz#ad6f6245bb1694a3ab2f6b055eb141f4717ff8e5"
-  integrity sha512-Eo2leBABPQ/w12WqWjM45HhnexqWcLAL6T4gkGwlzEpZFLxmo6JKZK3yQd+iLrJ8Xkog188hY15/zJV5EXhN5Q==
-  dependencies:
-    leva "^0.10.0"
-    zustand "^5.0.3"
+wawa-vfx@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/wawa-vfx/-/wawa-vfx-1.1.4.tgz#621989dd2e522688a9283710e22056c2f13aaa01"
+  integrity sha512-tsKw+FdQMmvnVTqAuW8kp4I18/cdkQjowHL4AwVvW0uFCzxse1cJUCbi9NTS7a0yQjRxrFpUzQEgamnUqCHn1Q==
 
 webgl-constants@^1.1.1:
   version "1.1.1"

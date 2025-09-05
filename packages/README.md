@@ -1,6 +1,6 @@
 # Wawa VFX
 
-A simple and easy-to-use library for creating visual effects with Three.js and React Three Fiber.
+A simple and easy-to-use library for creating visual effects with vanilla Three.js and React Three Fiber.
 
 [Live demo](https://wawa-vfx.wawasensei.dev/) - [Fireworks demo](https://fireworks.wawasensei.dev/) - [Wizard Game demo](https://wizard.wawasensei.dev/)
 
@@ -24,12 +24,16 @@ yarn add wawa-vfx
 
 ## Usage
 
-Wawa VFX makes it easy to create particle effects in your React Three Fiber projects. The library uses a two-component system:
+Wawa VFX works with both vanilla Three.js and React Three Fiber projects:
 
+- **For React Three Fiber**: Import from `wawa-vfx`
+- **For Vanilla Three.js**: Import from `wawa-vfx/vanilla`
+
+Both approaches use a two-component system:
 - `VFXParticles`: Defines the particle system and its rendering properties
 - `VFXEmitter`: Controls how and when particles are emitted into the scene
 
-### Basic Example
+### React Three Fiber Example
 
 ```jsx
 import { VFXEmitter, VFXParticles } from "wawa-vfx";
@@ -102,12 +106,71 @@ const MyEffect = () => {
 };
 ```
 
+### Vanilla Three.js Example
+
+```js
+import * as THREE from 'three';
+import { VFXEmitter, VFXParticles } from 'wawa-vfx/vanilla';
+
+// Create a basic Three.js scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Create particle system
+const particles = new VFXParticles('fireParticles', {
+  nbParticles: 10000,
+  gravity: [0, -2, 0],
+  renderMode: 'billboard',
+  intensity: 2,
+});
+scene.add(particles.getMesh());
+
+// Create emitter
+const emitter = new VFXEmitter('fireParticles', {
+  loop: true,
+  duration: 2,
+  nbParticles: 50,
+  spawnMode: 'time',
+  particlesLifetime: [0.5, 2.0],
+  startPositionMin: [-0.2, 0, -0.2],
+  startPositionMax: [0.2, 0.5, 0.2],
+  directionMin: [-0.5, 1, -0.5],
+  directionMax: [0.5, 2, 0.5],
+  size: [0.02, 0.1],
+  speed: [2, 5],
+  colorStart: ['#ff6b35', '#f7931e'],
+  colorEnd: ['#ff0000', '#8b0000'],
+});
+scene.add(emitter);
+
+// Position camera
+camera.position.z = 3;
+
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  
+  // Update VFX system (pass current time in seconds)
+  const time = performance.now() * 0.001;
+  emitter.update(time, 0.016); // time, delta
+  particles.update(time);
+  
+  renderer.render(scene, camera);
+}
+
+animate();
+```
+
 ### Key Features
 
 - **Easy to Use**: Create complex particle effects with minimal code
 - **Flexible Customization**: Extensive settings for fine-tuning visual effects
 - **Performance Optimized**: Uses instanced rendering for efficient particle systems
-- **Integrated with React Three Fiber**: Works seamlessly with your existing project
+- **Dual Usage**: Works with both vanilla Three.js and React Three Fiber
+- **Same API**: Consistent API across vanilla and React implementations
 
 ### New features ✨
 

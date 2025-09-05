@@ -1,19 +1,12 @@
-// Core vanilla Three.js exports
-export { 
-  VFXEmitterCore, 
-  VFXParticlesCore
-} from "./components/vfxs/core";
-
-export type { 
-  VFXEmitterSettings,
-  VFXParticlesSettings,
-  EmitCallbackSettings,
-  EmitCallbackSettingsFn
-} from "./components/vfxs/core";
-
 // React Three Fiber exports
 export { default as VFXEmitter } from "./components/vfxs/VFXEmitter";
 export { default as VFXParticles } from "./components/vfxs/VFXParticles";
+
+// Settings types (useful for TypeScript users)
+export type { 
+  VFXEmitterSettings,
+  VFXParticlesSettings
+} from "./components/vfxs/core";
 
 // Types and enums
 export { AppearanceMode, RenderMode } from "./components/vfxs/types";

@@ -14,26 +14,30 @@ export default defineConfig({
   build: {
     lib: {
       entry: "src/index.ts",
-      name: "Wawa-VFX",
-      fileName: (format) => `wawa-vfx.${format}.js`,
+      name: "Wawa-VFX", 
+      fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
       external: [
         "react",
         "react/jsx-runtime",
-        "react-dom",
+        "react-dom", 
         "react-dom/client",
         "@react-three/fiber",
         "three",
-      ], // Don't bundle these
+        "leva",
+        "zustand"
+      ],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
-          "react-dom/client": "ReactDOMClient",
+          "react-dom/client": "ReactDOMClient", 
           "react/jsx-runtime": "react/jsx-runtime",
           "@react-three/fiber": "reactThreeFiber",
           three: "THREE",
+          leva: "leva",
+          zustand: "zustand",
         },
       },
     },
