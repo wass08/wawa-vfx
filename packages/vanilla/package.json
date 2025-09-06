@@ -1,7 +1,7 @@
 {
   "name": "wawa-vfx-vanilla",
   "private": false,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/index.umd.js",
@@ -15,6 +15,15 @@
     "vanilla"
   ],
   "description": "A simple and easy-to-use vanilla Three.js library for creating visual effects.",
+  "homepage": "https://wawa-vfx.wawasensei.dev/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wass08/wawa-vfx.git",
+    "directory": "packages/vanilla"
+  },
+  "bugs": {
+    "url": "https://github.com/wass08/wawa-vfx/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

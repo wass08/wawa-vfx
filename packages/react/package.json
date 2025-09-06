@@ -1,7 +1,7 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/index.umd.js",
@@ -18,6 +18,15 @@
     "effects"
   ],
   "description": "A simple and easy-to-use library for creating visual effects in React Three Fiber.",
+  "homepage": "https://wawa-vfx.wawasensei.dev/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wass08/wawa-vfx.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/wass08/wawa-vfx/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
