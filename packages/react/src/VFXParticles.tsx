@@ -27,7 +27,12 @@ const VFXParticles: React.FC<VFXParticlesProps> = ({
       let bufferGeometry: THREE.BufferGeometry | undefined;
       if (geometry && "props" in geometry) {
         const props = (geometry as any).props;
-        if (props?.args && Array.isArray(props.args)) {
+        // Check if it's a primitive with an object that is a geometry
+        if (props?.object && props.object instanceof THREE.BufferGeometry) {
+          bufferGeometry = props.object;
+        }
+        // Check if it's a geometry element with args (like <planeGeometry args={[1, 1]} />)
+        else if (props?.args && Array.isArray(props.args)) {
           bufferGeometry = new THREE.PlaneGeometry(...props.args);
         }
       }
