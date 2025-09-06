@@ -1,6 +1,6 @@
 import { button, folder, useControls } from "leva";
 import { useEffect, useRef } from "react";
-import { VFXEmitterSettings } from "./VFXEmitter";
+import { VFXEmitterSettings } from "wawa-vfx-vanilla";
 
 interface VFXBuilderEmitterProps {
   settings?: VFXEmitterSettings;

@@ -9,8 +9,8 @@ import {
   useState,
 } from "react";
 import * as THREE from "three";
+import { VFXEmitterCore, VFXEmitterSettings } from "wawa-vfx-vanilla";
 import { VFXBuilderEmitter } from "./VFXBuilder";
-import { VFXEmitterCore, VFXEmitterSettings } from "./core";
 
 export type { VFXEmitterSettings };
 

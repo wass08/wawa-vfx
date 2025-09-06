@@ -2,234 +2,153 @@
 
 A simple and easy-to-use library for creating visual effects with vanilla Three.js and React Three Fiber.
 
-[Live demo](https://wawa-vfx.wawasensei.dev/) - [Fireworks demo](https://fireworks.wawasensei.dev/) - [Wizard Game demo](https://wizard.wawasensei.dev/)
+[🚀 Live Demo](https://wawa-vfx.wawasensei.dev/) - [🎆 Fireworks Demo](https://fireworks.wawasensei.dev/) - [🧙 Wizard Game Demo](https://wizard.wawasensei.dev/)
 
 > This powerful VFX particle system was developed as part of the comprehensive **VFX & Advanced Rendering Chapter** in my [React Three Fiber: The Ultimate Guide to 3D Web Development](https://lessons.wawasensei.dev/courses/react-three-fiber/) course.
->
-> In the course, we break down every aspect of this system, explaining the mathematics, optimization techniques, and design patterns that make it work.
 
 https://github.com/user-attachments/assets/4c00c0e1-ae4f-4501-a648-0811c7a4ca7d
 
-## Install
+## 📦 Packages
 
+This monorepo contains two packages designed to work with different environments:
+
+### For Vanilla Three.js Projects
+**[wawa-vfx-vanilla](./packages/vanilla/README.md)** - Pure Three.js implementation
+```bash
+npm install wawa-vfx-vanilla
+```
+- ✅ No React dependencies
+- ✅ Clean installation
+- ✅ Works with any Three.js project
+
+### For React Three Fiber Projects  
+**[wawa-vfx](./packages/react/README.md)** - React Three Fiber components
 ```bash
 npm install wawa-vfx
 ```
+- ✅ Declarative React components
+- ✅ Built-in Leva debug controls
+- ✅ TypeScript support
 
-or
+## 🎯 Quick Start
 
-```bash
-yarn add wawa-vfx
-```
+Choose your implementation:
 
-## Usage
+<table>
+<tr>
+<td width="50%">
 
-Wawa VFX works with both vanilla Three.js and React Three Fiber projects:
+**Vanilla Three.js**
+```javascript
+import { VFXEmitter, VFXParticles } from 'wawa-vfx-vanilla';
 
-- **For React Three Fiber**: Import from `wawa-vfx`
-- **For Vanilla Three.js**: Import from `wawa-vfx/vanilla`
-
-Both approaches use a two-component system:
-- `VFXParticles`: Defines the particle system and its rendering properties
-- `VFXEmitter`: Controls how and when particles are emitted into the scene
-
-### React Three Fiber Example
-
-```jsx
-import { VFXEmitter, VFXParticles } from "wawa-vfx";
-
-const MyEffect = () => {
-  return (
-    <>
-      {/* Step 1: Define your particle system */}
-      <VFXParticles
-        name="particles" // A unique identifier for this particle system
-        settings={{
-          nbParticles: 100000, // Maximum number of particles to allocate
-          gravity: [0, -9.8, 0], // Apply gravity (x, y, z)
-          fadeSize: [0, 0], // Size fade in/out settings
-          fadeOpacity: [0, 0], // Opacity fade in/out settings
-          renderMode: "billboard", // "billboard" or "mesh" or "stretchBillboard"
-          intensity: 3, // Brightness multiplier
-          appearance: AppearanceMode.Circular, // Define the default appearance to be plane (default) or circular
-          easing: "easeLinear", // add easing to the particle animations (see EaseFunction in vfxs/types.ts)
-        }}
-      />
-
-      {/* Step 2: Define your emitter */}
-      <VFXEmitter
-        debug // Show debug visualization
-        emitter="particles" // Target the particle system by name
-        settings={{
-          loop: true, // Continuously emit particles (only if `spawnMode` is 'time')
-          duration: 1, // Emission cycle duration in seconds
-          nbParticles: 100, // Number of particles to emit per cycle
-          spawnMode: "time", // Emission mode: 'time' or 'burst'
-          delay: 0, // Time delay before starting emission
-
-          // Particle lifetime range [min, max]
-          particlesLifetime: [0.1, 1],
-
-          // Position range (min/max)
-          startPositionMin: [-0.1, -0.1, -0.1],
-          startPositionMax: [0.1, 0.1, 0.1],
-
-          // Rotation range (min/max)
-          startRotationMin: [0, 0, 0],
-          startRotationMax: [0, 0, 0],
-          // Rotation speed range (min/max)
-          rotationSpeedMin: [0, 0, 0],
-          rotationSpeedMax: [0, 0, 0],
-
-          // Direction range (min/max)
-          directionMin: [-1, 0, -1],
-          directionMax: [1, 1, 1],
-
-          // Particle size range [min, max]
-          size: [0.01, 0.25],
-
-          // Particle speed range [min, max]
-          speed: [1, 12],
-
-          // Color at start - an array of strings for random selection
-          colorStart: ["white", "skyblue"],
-
-          // Color at end - an array of strings for random selection
-          colorEnd: ["white", "pink"],
-
-          // When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
-          useLocalDirection: true,
-        }}
-      />
-    </>
-  );
-};
-```
-
-### Vanilla Three.js Example
-
-```js
-import * as THREE from 'three';
-import { VFXEmitter, VFXParticles } from 'wawa-vfx/vanilla';
-
-// Create a basic Three.js scene
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Create particle system
-const particles = new VFXParticles('fireParticles', {
-  nbParticles: 10000,
+const particles = new VFXParticles('fire', {
+  nbParticles: 1000,
   gravity: [0, -2, 0],
-  renderMode: 'billboard',
-  intensity: 2,
+  renderMode: 'billboard'
 });
 scene.add(particles.getMesh());
 
-// Create emitter
-const emitter = new VFXEmitter('fireParticles', {
-  loop: true,
+const emitter = new VFXEmitter('fire', {
   duration: 2,
-  nbParticles: 50,
-  spawnMode: 'time',
-  particlesLifetime: [0.5, 2.0],
-  startPositionMin: [-0.2, 0, -0.2],
-  startPositionMax: [0.2, 0.5, 0.2],
-  directionMin: [-0.5, 1, -0.5],
-  directionMax: [0.5, 2, 0.5],
-  size: [0.02, 0.1],
-  speed: [2, 5],
-  colorStart: ['#ff6b35', '#f7931e'],
-  colorEnd: ['#ff0000', '#8b0000'],
+  nbParticles: 50
 });
 scene.add(emitter);
-
-// Position camera
-camera.position.z = 3;
-
-// Animation loop
-function animate() {
-  requestAnimationFrame(animate);
-  
-  // Update VFX system (pass current time in seconds)
-  const time = performance.now() * 0.001;
-  emitter.update(time, 0.016); // time, delta
-  particles.update(time);
-  
-  renderer.render(scene, camera);
-}
-
-animate();
 ```
 
-### Key Features
+</td>
+<td width="50%">
 
-- **Easy to Use**: Create complex particle effects with minimal code
-- **Flexible Customization**: Extensive settings for fine-tuning visual effects
-- **Performance Optimized**: Uses instanced rendering for efficient particle systems
-- **Dual Usage**: Works with both vanilla Three.js and React Three Fiber
-- **Same API**: Consistent API across vanilla and React implementations
-
-### New features ✨
-
-##### VFXParticles :
-
-###### 🔷 Explicit Appearance Mode
-
-You can now explicitly define the default appearance to be plane (default) or circular
-
-###### 🔷 Stretch Billboard renderMode
-
-A new renderMode: "stretchBillboard" option has been added. This renders particles as billboards that stretch along their velocity direction, ideal for effects like trails, speed lines, or fire streaks.
-
-###### 🔷 Particle Easings
-
-You can now apply easing function enabling smooth transitions over the particle’s lifetime. Easing options includes 42 functions from which you can choose using typescript's autocomplete feature.
-
-##### VFXEmitter :
-
-🔷 useLocalDirection Setting
-
-A new boolean setting:
-
+**React Three Fiber**
 ```jsx
-  useLocalDirection?: boolean; // true | false
+import { VFXEmitter, VFXParticles } from 'wawa-vfx';
+
+<Canvas>
+  <VFXParticles 
+    name="fire"
+    settings={{
+      nbParticles: 1000,
+      gravity: [0, -2, 0],
+      renderMode: 'billboard'
+    }}
+  />
+  <VFXEmitter 
+    emitter="fire"
+    settings={{
+      duration: 2,
+      nbParticles: 50
+    }}
+  />
+</Canvas>
 ```
 
-When true, the emitter will emit particles using its local axes (transformed by its world rotation). When false, particles are emitted using the world axes, ignoring the emitter’s rotation.
+</td>
+</tr>
+</table>
 
-### VFXParticles Properties
+## 📚 Documentation
 
-| Property   | Type          | Description                                      |
-| ---------- | ------------- | ------------------------------------------------ |
-| `name`     | string        | Unique identifier for this particle system       |
-| `settings` | object        | Configuration options for particles              |
-| `alphaMap` | THREE.Texture | Optional texture for particle alpha/transparency |
-| `geometry` | ReactElement  | Optional custom geometry for particles           |
+- **[Vanilla Three.js Documentation](./packages/vanilla/README.md)** - Complete API reference, examples, and guides
+- **[React Three Fiber Documentation](./packages/react/README.md)** - Component props, hooks, and React-specific features
+- **[Migration Guide](./MIGRATION.md)** - Upgrading from single package structure
 
-### VFXEmitter Properties
+## 🎮 Examples
 
-| Property   | Type    | Description                                 |
-| ---------- | ------- | ------------------------------------------- |
-| `emitter`  | string  | Name of the target particle system          |
-| `settings` | object  | Configuration options for emission behavior |
-| `debug`    | boolean | Show controls to adjust the settings        |
+Explore the `examples/` directory for complete implementations:
 
-## Advanced Usage
+- **[React Three Fiber Examples](./examples/react-three-fiber/)** - Interactive demos with source code
+- **Fire Effects** - Realistic fire and smoke
+- **Fireworks** - Explosive particle displays  
+- **Magic Spells** - Fantasy VFX effects
+- **Custom Geometry** - Using 3D models as particles
 
-Check out the `examples` directory for more complex implementations and techniques.
+## ✨ Key Features
 
-## Roadmap
+- 🚀 **Easy to Use**: Create complex particle effects with minimal code
+- ⚡ **Performance Optimized**: Instanced rendering for thousands of particles
+- 🎨 **Highly Customizable**: 40+ settings for fine-tuning effects
+- 🎯 **Dual Architecture**: Same API for both vanilla Three.js and React
+- 📐 **Advanced Rendering**: Billboard, mesh, and stretch-billboard modes
+- 🌊 **Smooth Animations**: 42 built-in easing functions
+- 🔧 **TypeScript**: Full type definitions included
+- 📦 **Custom Geometry**: Use any 3D model as particles
 
-Do you want to contribute to the project? Here are some ideas for future features:
+## 🆕 Latest Features
 
-- [ ] WebGPU/TSL `VFXParticles`/`VFXParticlesMaterial` versions
-- [ ] Performance optimizations (Points / Sprites)
-- [ ] More controls on the `VFXEmitter` component (`emit`, `emitStart`, `emitStop`, `emitByDistance`)
-- [ ] More customization options for the particle system
-- [x] More rendering modes (`stretched billboard`)
-- [ ] More examples and documentation
+- **Stretch Billboard Mode**: Particles that stretch along velocity
+- **42 Easing Functions**: Smooth mathematical transitions  
+- **Appearance Modes**: Square and circular particle shapes
+- **Local Direction Control**: Emit particles in local or world space
+- **Custom Geometry Support**: Use any Three.js geometry
 
-Feel free to open an issue or PR if you have any suggestions or improvements!
+## 🔧 Development
+
+This project uses npm workspaces:
+
+```bash
+# Install all dependencies
+npm install
+
+# Build both packages
+npm run build
+
+# Build specific package
+npm run build:vanilla
+npm run build:react
+
+# Development
+npm run dev:vanilla
+npm run dev:react
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+## 📄 License
+
+MIT © [Wawa Sensei](https://github.com/wass08)
+
+---
+
+**Get started today**: Choose [vanilla](./packages/vanilla/README.md) or [React](./packages/react/README.md) and create amazing particle effects! 🎆
