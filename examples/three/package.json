@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "postprocessing": "^6.37.7",
-    "three": "^0.180.0",
-    "wawa-vfx": "^1.1.4"
+    "three": "^0.180.0"
   }
 }

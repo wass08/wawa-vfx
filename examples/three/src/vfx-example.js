@@ -4,7 +4,7 @@ import {
   RenderMode,
   VFXEmitter,
   VFXParticles,
-} from "wawa-vfx/vanilla";
+} from "wawa-vfx-vanilla";
 
 export function setupVFXExample(scene) {
   // Create particles system

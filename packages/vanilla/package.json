@@ -1,0 +1,43 @@
+{
+  "name": "wawa-vfx-vanilla",
+  "private": false,
+  "version": "1.1.5",
+  "license": "MIT",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
+  "keywords": [
+    "three",
+    "threejs",
+    "vfx",
+    "particles",
+    "effects",
+    "vanilla"
+  ],
+  "description": "A simple and easy-to-use vanilla Three.js library for creating visual effects.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "peerDependencies": {
+    "three": ">=0.159"
+  },
+  "devDependencies": {
+    "@types/three": "^0.174.0",
+    "three": "^0.174.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0",
+    "vite-plugin-dts": "^4.5.3",
+    "zustand": "^5.0.3"
+  }
+}

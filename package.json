@@ -1,0 +1,26 @@
+{
+  "name": "wawa-vfx-monorepo",
+  "private": true,
+  "version": "1.1.5",
+  "workspaces": [
+    "packages/vanilla",
+    "packages/react"
+  ],
+  "scripts": {
+    "dev:vanilla": "npm run dev -w wawa-vfx-vanilla",
+    "dev:react": "npm run dev -w wawa-vfx",
+    "build:vanilla": "npm run build -w wawa-vfx-vanilla",
+    "build:react": "npm run build -w wawa-vfx",
+    "build": "npm run build:vanilla && npm run build:react",
+    "clean": "rm -rf packages/vanilla/dist packages/react/dist node_modules packages/vanilla/node_modules packages/react/node_modules",
+    "install:all": "npm install",
+    "link-local": "./scripts/link-local.sh",
+    "publish:vanilla": "npm run build:vanilla && npm publish -w wawa-vfx-vanilla",
+    "publish:react": "npm run build && npm publish -w wawa-vfx",
+    "publish:all": "npm run publish:vanilla && npm run publish:react"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0"
+  }
+}
