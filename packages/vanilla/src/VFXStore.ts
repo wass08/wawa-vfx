@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
 
 interface EmitCallbackSettings {
   position: [number, number, number];
@@ -22,7 +22,7 @@ interface VFXStore {
   emit: (name: string, rate: number, callback: EmitCallbackSettingsFn) => void;
 }
 
-export const useVFX = create<VFXStore>((set, get) => ({
+export const vfxStore = createStore<VFXStore>((set, get) => ({
   emitters: {},
   shouldEmit: true,
   registerEmitter: (name: string, emitter) => {

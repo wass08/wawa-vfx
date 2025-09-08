@@ -17,11 +17,10 @@ export default defineConfig({
       fileName: (format) => `index.${format === "es" ? "es" : "umd"}.js`,
     },
     rollupOptions: {
-      external: ["three", "zustand"],
+      external: ["three"],
       output: {
         globals: {
           three: "THREE",
-          zustand: "zustand",
         },
       },
     },

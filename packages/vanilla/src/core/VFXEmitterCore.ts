@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useVFX } from "../VFXStore";
+import { vfxStore } from "../VFXStore";
 
 export interface VFXEmitterSettings {
   duration?: number;
@@ -36,12 +36,12 @@ export class VFXEmitterCore extends THREE.Object3D {
   private shouldEmit: boolean;
   private emitterName: string;
   private localDirection: boolean;
-  private store: ReturnType<typeof useVFX.getState>;
+  private store: ReturnType<typeof vfxStore.getState>;
 
   constructor(
     emitterName: string,
     settings: VFXEmitterSettings = {},
-    store?: ReturnType<typeof useVFX.getState>,
+    store?: ReturnType<typeof vfxStore.getState>,
     localDirection: boolean = false,
     autoStart: boolean = true
   ) {
@@ -49,7 +49,7 @@ export class VFXEmitterCore extends THREE.Object3D {
     this.emitterName = emitterName;
     this.localDirection = localDirection;
     this.shouldEmit = autoStart;
-    this.store = store || useVFX.getState();
+    this.store = store || vfxStore.getState();
 
     this.settings = {
       duration: settings.duration ?? 1,

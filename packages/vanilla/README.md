@@ -243,9 +243,9 @@ new VFXEmitter(targetParticles, settings, store?)
 You can programmatically control emitters using the VFX store:
 
 ```javascript
-import { useVFX } from 'wawa-vfx-vanilla';
+import { vfxStore } from 'wawa-vfx-vanilla';
 
-const store = useVFX.getState();
+const store = vfxStore.getState();
 
 // Emit particles manually
 store.emit('myParticles', 10, () => ({

@@ -23,4 +23,4 @@ export { AppearanceMode, RenderMode } from "./types";
 export type { EaseFunction } from "./types";
 
 // Store (works without React)
-export { useVFX } from "./VFXStore";
+export { vfxStore } from "./VFXStore";

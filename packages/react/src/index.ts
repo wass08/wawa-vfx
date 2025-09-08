@@ -12,5 +12,5 @@ export type {
 // Re-export enums from vanilla package
 export { AppearanceMode, RenderMode } from "wawa-vfx-vanilla";
 
-// Re-export store hook from vanilla package
-export { useVFX } from "wawa-vfx-vanilla";
+// Re-export store from vanilla package
+export { vfxStore } from "wawa-vfx-vanilla";

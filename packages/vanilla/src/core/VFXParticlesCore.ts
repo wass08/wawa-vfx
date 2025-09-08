@@ -6,7 +6,7 @@ import {
   easeFunctionList,
   RenderMode,
 } from "../types";
-import { useVFX } from "../VFXStore";
+import { vfxStore } from "../VFXStore";
 
 export interface EmitCallbackSettings {
   position: [number, number, number];
@@ -51,7 +51,7 @@ export class VFXParticlesCore {
   private lastCursor: number = 0;
   private needsUpdate: boolean = false;
   private name: string;
-  private store: ReturnType<typeof useVFX.getState>;
+  private store: ReturnType<typeof vfxStore.getState>;
   private clock: THREE.Clock;
 
   private attributeArrays: {
@@ -66,12 +66,12 @@ export class VFXParticlesCore {
   constructor(
     name: string,
     settings: VFXParticlesSettings = {},
-    store?: ReturnType<typeof useVFX.getState>,
+    store?: ReturnType<typeof vfxStore.getState>,
     alphaMap?: THREE.Texture,
     geometry?: THREE.BufferGeometry
   ) {
     this.name = name;
-    this.store = store || useVFX.getState();
+    this.store = store || vfxStore.getState();
     this.clock = new THREE.Clock();
 
     this.settings = {
