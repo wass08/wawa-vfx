@@ -1,7 +1,7 @@
 {
   "name": "wawa-vfx-vanilla",
   "private": false,
-  "version": "1.2.1",
+  "version": "1.2.2",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/index.umd.js",
@@ -41,12 +41,14 @@
   "peerDependencies": {
     "three": ">=0.159"
   },
+  "dependencies": {
+    "zustand": "^5.0.3"
+  },
   "devDependencies": {
     "@types/three": "^0.174.0",
     "three": "^0.174.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
-    "vite-plugin-dts": "^4.5.3",
-    "zustand": "^5.0.3"
+    "vite-plugin-dts": "^4.5.3"
   }
 }

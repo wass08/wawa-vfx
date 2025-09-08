@@ -1,7 +1,7 @@
 {
   "name": "wawa-vfx",
   "private": false,
-  "version": "1.2.1",
+  "version": "1.2.2",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/index.umd.js",
@@ -42,7 +42,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "wawa-vfx-vanilla": "^1.1.5"
+    "wawa-vfx-vanilla": "^1.2.2"
   },
   "peerDependencies": {
     "@react-three/fiber": "^9.0.0",
