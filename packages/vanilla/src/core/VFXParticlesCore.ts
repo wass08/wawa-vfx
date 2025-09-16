@@ -243,7 +243,13 @@ void main() {
     float scaleY = length(instanceMatrix[1].xyz);
     float scaleZ = length(instanceMatrix[2].xyz);
     vec3 instanceScale = vec3(scaleX, scaleY, scaleZ);
-    mat3 finalMatrix = billboardMatrix * mat3(rotationMatrix);
+
+    // Extract initial Z rotation from instanceMatrix
+    float initialRotZ = atan(instanceMatrix[0].y / scaleX, instanceMatrix[0].x / scaleX);
+    mat4 initialRotZMatrix = rotationZ(initialRotZ);
+
+    // Combine initial rotation with dynamic rotation
+    mat3 finalMatrix = billboardMatrix * mat3(initialRotZMatrix * rotationMatrix);
     vec3 finalRight = finalMatrix[0] * instanceScale * scale;
     vec3 finalUp = finalMatrix[1] * instanceScale * scale;
     vec3 vertexWorldPos = instancePosition + finalRight * position.x + finalUp * position.y;

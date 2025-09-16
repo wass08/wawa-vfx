@@ -15,6 +15,10 @@ cd ../react
 npm link wawa-vfx-vanilla
 npm run build
 
+# Link react package
+echo "Linking react package..."
+npm link
+
 echo "Local linking complete!"
 echo "Vanilla package can now be used with: npm link wawa-vfx-vanilla"
 echo "React package can now be used with: npm link wawa-vfx"
