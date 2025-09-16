@@ -203,7 +203,7 @@ void main() {
   float age = uTime - startTime;
 
   age = instanceSpeed < 0.0 ? duration - (uTime - startTime) : uTime - startTime;
-  float progress = clamp(age / duration, 0.0, 1.0);
+  float progress = clamp(age / duration, 0.0, 1.01);
   vProgress = applyEasing(progress, uEasingFunction);
 
   if (vProgress < 0.0 || vProgress > 1.0) {
